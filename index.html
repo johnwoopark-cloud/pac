@@ -343,6 +343,8 @@
 
 <script>
 const SUPABASE_URL = 'https://uaiwjhoavxmhmrxlwqku.supabase.co';
+
+// ⚠️ 중요: 아래 값 대신 Supabase 대시보드 API 설정화면에서 복사한 최신 'anon' 'public' 키를 새로 꼭 붙여넣으세요!
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVhaXdqaG9hdnhtaG1yeGx3cWt1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODMzMTk0NjQsImV4cCI6MjA5ODg5NTQ2NH0.84VBEmXJmdwHX-NwNYznqxP1EcGENsnyKg4COCPNr6s'; 
 
 const { createClient } = supabase;
@@ -417,7 +419,7 @@ function renderCaseList() {
     </tr>`).join('');
 }
 
-// ── 핵심: 파일 불러오기 및 AI 순차 추출 ──
+// 파일 불러오기 및 AI 순차 추출
 let selectedFiles = [], eventItems = [], selectedOutcome = '진행 중', caseNums = [];
 
 async function handleFileSelect(files) {
@@ -437,7 +439,6 @@ async function handleFileSelect(files) {
       const formData = new FormData();
       formData.append('file', file);
       
-      // ✨ 수동 fetch 대신 SDK Invoke 메서드를 사용하여 API Gateway 인증 문제를 해결합니다.
       const { data: res, error: funcErr } = await db.functions.invoke('smooth-api', {
         body: formData
       });
@@ -503,7 +504,7 @@ function renderFileList() {
   document.getElementById('file-list-ui').innerHTML = selectedFiles.map((f,i) => `<div class="file-item">📄 <span>${f.name}</span> <button class="icon-btn" onclick="selectedFiles.splice(${i},1);renderFileList();">✕</button></div>`).join('');
 }
 
-// ── 상세 검색 컴포넌트 ──
+// 상세 검색 컴포넌트
 async function runIntegratedSearch() {
   const query = document.getElementById('s-query').value.toLowerCase();
   const status = document.getElementById('s-status').value;
@@ -531,7 +532,7 @@ async function runIntegratedSearch() {
     </tr>`).join('');
 }
 
-// ── 상세 조회 및 뷰어 ──
+// 상세 조회 및 뷰어
 async function showDetail(id) {
   const c = cases.find(x => x.id === id);
   if (!c) return;
@@ -586,7 +587,7 @@ async function openPdfInbound(path, name) {
 }
 function closeMainPdf() { document.getElementById('main-pdf-container').style.display = 'none'; document.getElementById('main-pdf-iframe').src = ''; }
 
-// ── 스테퍼 내비게이션 ──
+// 스테퍼 내비게이션
 let curStep = 1;
 function goStep(n) {
   document.getElementById('sc'+curStep).classList.remove('active');
@@ -649,7 +650,7 @@ function safeName(originalName) {
   return (base.replace(/[^a-zA-Z0-9_-]/g, '_') || 'secure_doc') + ext;
 }
 
-// ── 최종 저장 트랜잭션 마스터 ──
+// 최종 저장 트랜잭션 마스터
 async function saveMasterTransaction() {
   const applicant = document.getElementById('f-applicant').value.trim();
   const broadcastDate = document.getElementById('f-broadcast-date').value;
