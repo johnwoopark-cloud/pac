@@ -343,8 +343,7 @@
 
 <script>
 const SUPABASE_URL = 'https://uaiwjhoavxmhmrxlwqku.supabase.co';
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVhaXdqaG9hdnhtaG1yeGx3cWt1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODMzMTk0NjQsImV4cCI6MjA5ODg5NTQ2NH0.84VBEmXJmdwHX-NwNYznqxP1EcGENsnyKg4COCPNr6s'; // uaiwjhoavxmhmrxlwqku 프로젝트의 anon key를 입력하세요.
-const GEMINI_FUNCTION_URL = 'https://uaiwjhoavxmhmrxlwqku.supabase.co/functions/v1/smooth-api';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVhaXdqaG9hdnhtaG1yeGx3cWt1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODMzMTk0NjQsImV4cCI6MjA5ODg5NTQ2NH0.84VBEmXJmdwHX-NwNYznqxP1EcGENsnyKg4COCPNr6s'; 
 
 const { createClient } = supabase;
 const db = createClient(SUPABASE_URL, SUPABASE_KEY);
@@ -428,9 +427,6 @@ async function handleFileSelect(files) {
   const statusText = document.getElementById('ai-status-text');
   overlay.style.display = 'flex';
 
-  const session = await db.auth.getSession();
-  const token = session.data.session ? session.data.session.access_token : '';
-
   let idx = 1;
   for (const file of Array.from(files)) {
     if (!selectedFiles.find(x => x.name === file.name)) selectedFiles.push(file);
@@ -440,17 +436,15 @@ async function handleFileSelect(files) {
     try {
       const formData = new FormData();
       formData.append('file', file);
-      const response = await fetch(GEMINI_FUNCTION_URL, {
-  method: 'POST',
-  headers: { 
-    'Authorization': `Bearer ${token}`,
-    'apikey': SUPABASE_KEY  // ✨ 이 줄을 반드시 추가해야 합니다!
-  },
-  body: formData
-});
+      
+      // ✨ 수동 fetch 대신 SDK Invoke 메서드를 사용하여 API Gateway 인증 문제를 해결합니다.
+      const { data: res, error: funcErr } = await db.functions.invoke('smooth-api', {
+        body: formData
+      });
 
-      if (response.ok) {
-        const res = await response.json();
+      if (funcErr) throw funcErr;
+
+      if (res) {
         // Step 2: 사건 기본 매핑
         if (res.broadcast_date) document.getElementById('f-broadcast-date').value = res.broadcast_date;
         if (res.application_date) document.getElementById('f-application-date').value = res.application_date;
@@ -470,7 +464,7 @@ async function handleFileSelect(files) {
           });
         }
         
-        // Step 3: 진행 과정 매핑 (백엔드가 events 배열을 반환하도록 설정된 경우)
+        // Step 3: 진행 과정 매핑
         if (res.events && Array.isArray(res.events)) {
             res.events.forEach(ev => {
                 eventItems.push({ event_type: ev.type, event_date: ev.date, description: ev.desc, status: '완료' });
@@ -490,7 +484,7 @@ async function handleFileSelect(files) {
         }
         if (res.outcome_date) document.getElementById('oc-date').value = res.outcome_date;
         if (res.agreement_content) document.getElementById('oc-content').value = res.agreement_content;
-        if (res.penalty_per_day) document.getElementById('oc-penalty').value = res.penalty_per_day; // 한화(원) 기준 추출
+        if (res.penalty_per_day) document.getElementById('oc-penalty').value = res.penalty_per_day; 
       }
     } catch (e) {
       console.error("파싱 에러: ", e);
@@ -502,7 +496,6 @@ async function handleFileSelect(files) {
   overlay.style.display = 'none';
   showToast('✨ 분석이 완료되었습니다. 2단계부터 사람이 직접 눈으로 확인 후 확정해 주세요.');
   
-  // 1단계 분석이 끝났으므로 2단계(사건 기본 검토) 화면으로 자동 전환
   goStep(2);
 }
 
@@ -604,7 +597,7 @@ function goStep(n) {
   document.getElementById('step-ind').textContent = `${curStep} / 5`;
   
   document.getElementById('btn-prev').style.visibility = curStep === 1 ? 'hidden' : 'visible';
-  document.getElementById('btn-next').style.display = curStep === 1 ? 'none' : 'inline-block'; // 1단계에서는 다음 버튼 숨김 (파일 업로드 후 자동 넘어감)
+  document.getElementById('btn-next').style.display = curStep === 1 ? 'none' : 'inline-block'; 
   document.getElementById('btn-next').textContent = curStep === 5 ? '💾 보안 시스템 저장' : '다음 단계 →';
   
   if (curStep === 5) renderConfirm();
