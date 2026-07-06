@@ -441,10 +441,13 @@ async function handleFileSelect(files) {
       const formData = new FormData();
       formData.append('file', file);
       const response = await fetch(GEMINI_FUNCTION_URL, {
-        method: 'POST',
-        headers: { 'Authorization': `Bearer ${token}` },
-        body: formData
-      });
+  method: 'POST',
+  headers: { 
+    'Authorization': `Bearer ${token}`,
+    'apikey': SUPABASE_KEY  // ✨ 이 줄을 반드시 추가해야 합니다!
+  },
+  body: formData
+});
 
       if (response.ok) {
         const res = await response.json();
