@@ -26,8 +26,8 @@
   .topbar-right { display: flex; gap: 12px; align-items: center; }
   .user-info { font-size: 13px; color: #666; background: #f0f0f0; padding: 4px 10px; border-radius: 20px; }
 
-  /* 요구사항 5번: 왼쪽 고정 메뉴 구성 */
-  .sidebar { width: 240px; background: #fff; border-right: 1px solid #e8e8e8; padding: 20px 16px; display: flex; flex-direction: column; gap: 8px; }
+  /* 왼쪽 고정 메뉴 구성 */
+  .sidebar { width: 240px; background: #fff; border-right: 1px solid #e8e8e8; padding: 20px 16px; display: flex; flex-direction: column; gap: 8px; flex-shrink: 0; }
   .menu-btn { width: 100%; padding: 12px 16px; border: none; background: transparent; text-align: left; border-radius: 8px; font-size: 14px; color: #555; cursor: pointer; font-weight: 500; transition: all 0.2s; }
   .menu-btn:hover { background: #f5f5f0; color: #1a1a1a; }
   .menu-btn.active { background: #1a1a1a; color: #fff; }
@@ -70,14 +70,11 @@
   .checkbox-group label { display: flex; align-items: center; gap: 6px; font-size: 14px; color: #1a1a1a; cursor: pointer; }
   .required { color: #E24B4A; }
 
-  /* 드롭존 및 멀티파일 프로세서 */
-  .file-drop { border: 2px dashed #ddd; border-radius: 10px; padding: 40px 20px; text-align: center; cursor: pointer; color: #aaa; font-size: 14px; position: relative; background: #fafaf8; }
-  .file-drop:hover, .file-drop.dragover { border-color: #185FA5; color: #185FA5; background: #f4faea; }
-  .file-drop input { display: none; }
+  /* 파일 불러오기 창 및 로딩 오버레이 */
+  .upload-box { text-align: center; padding: 40px 20px; background: #fafaf8; border: 1px solid #e0e0e0; border-radius: 10px; }
   .file-list { margin-top: 12px; display: flex; flex-direction: column; gap: 6px; }
   .file-item { display: flex; gap: 10px; align-items: center; padding: 8px 12px; border: 1px solid #eee; border-radius: 8px; font-size: 13px; background: #fff; }
   .file-item span { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-
   .ai-loading-overlay { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.95); border-radius: 10px; align-items: center; justify-content: center; flex-direction: column; gap: 12px; color: #185FA5; font-weight: bold; z-index: 10; }
 
   .step-nav { display: flex; margin-bottom: 24px; border: 1px solid #e0e0e0; border-radius: 10px; overflow: hidden; }
@@ -96,8 +93,42 @@
   .btn-success { background: #1D9E75; color: #fff; border-color: #1D9E75; }
   .btn-danger { color: #A32D2D; border-color: #f0c0c0; }
   .btn-sm { padding: 5px 12px; font-size: 12px; }
+  .icon-btn { width: 32px; height: 32px; border-radius: 50%; border: 1px solid #ddd; background: #fff; cursor: pointer; font-size: 14px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
   
   #toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: #1a1a1a; color: #fff; padding: 12px 24px; border-radius: 99px; font-size: 14px; display: none; z-index: 999; }
+  .spinner { display: inline-block; width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.3); border-top-color: #fff; border-radius: 50%; animation: spin 0.6s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  
+  .confirm-table { width: 100%; border-collapse: collapse; }
+  .confirm-table td { padding: 11px 0; font-size: 14px; border-bottom: 1px solid #f0f0f0; }
+  .confirm-table td:first-child { color: #888; width: 35%; }
+  .form-bottom { display: flex; justify-content: space-between; align-items: center; padding-top: 16px; margin-top: 8px; border-top: 1px solid #eee; }
+  
+  .event-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; }
+  .event-item { display: flex; gap: 12px; align-items: center; padding: 12px 14px; border: 1px solid #eee; border-radius: 8px; background: #fafaf8; }
+  .event-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .dot-대응통지 { background: #378ADD; }
+  .dot-답변서_제출 { background: #1D9E75; }
+  .dot-조정기일 { background: #BA7517; }
+  .dot-후속조치 { background: #534AB7; }
+  .dot-소송전환 { background: #E24B4A; }
+  .event-label { font-size: 14px; flex: 1; }
+  .event-date { font-size: 12px; color: #aaa; }
+  
+  .outcome-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 16px; }
+  .outcome-card { border: 1px solid #e0e0e0; border-radius: 10px; padding: 14px; cursor: pointer; text-align: center; background: #fff; }
+  .outcome-card.selected { border: 2px solid #185FA5; background: #E6F1FB; }
+  .outcome-card .oc-title { font-size: 14px; font-weight: 500; margin-top: 6px; }
+  .case-num-row { display: flex; gap: 8px; align-items: center; margin-bottom: 8px; }
+  
+  /* 상세 조회 뷰 */
+  .detail-section { background: #fff; border: 1px solid #e8e8e8; border-radius: 12px; padding: 20px; margin-bottom: 14px; }
+  .detail-section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; border-bottom: 1px solid #f5f5f5; padding-bottom: 8px; }
+  .detail-section-header h3 { font-size: 14px; font-weight: 500; color: #666; }
+  .detail-row { display: flex; padding: 10px 0; border-bottom: 1px solid #f5f5f5; font-size: 14px; }
+  .detail-row:last-child { border-bottom: none; }
+  .detail-label { color: #888; width: 30%; flex-shrink: 0; }
+  .detail-val { font-weight: 500; }
 </style>
 </head>
 <body>
@@ -130,7 +161,6 @@
     </div>
 
     <div class="content-area">
-      
       <div id="p-list" class="page-panel active">
         <div class="list-header">
           <h2>사건 기본 대시보드</h2>
@@ -174,16 +204,36 @@
 
       <div id="p-form" class="page-panel">
         <div class="step-nav">
-          <div class="step-item active" id="snav1" onclick="goStep(1)">1. 사건 기본</div>
-          <div class="step-item" id="snav2" onclick="goStep(2)">2. 진행 과정</div>
-          <div class="step-item" id="snav3" onclick="goStep(3)">3. 종결 유형</div>
-          <div class="step-item" id="snav4" onclick="goStep(4)">4. 멀티 파일 분석 및 업로드</div>
-          <div class="step-item" id="snav5" onclick="goStep(5)">5. 확인 및 확정</div>
+          <div class="step-item active" id="snav1" onclick="goStep(1)">1. 문서 파일 불러오기</div>
+          <div class="step-item" id="snav2" onclick="goStep(2)">2. 사건 기본 검토</div>
+          <div class="step-item" id="snav3" onclick="goStep(3)">3. 진행 과정 검토</div>
+          <div class="step-item" id="snav4" onclick="goStep(4)">4. 종결 유형 검토</div>
+          <div class="step-item" id="snav5" onclick="goStep(5)">5. 최종 확인 및 저장</div>
         </div>
 
         <div class="step-content active" id="sc1">
           <div class="form-panel">
-            <h3>사건 기본 개요</h3>
+            <h3>사건 문서 파일 불러오기 (Gemini AI 분석)</h3>
+            <div class="upload-box">
+              <div style="font-size:36px; margin-bottom:10px;">📂</div>
+              <p style="margin-bottom: 16px; color: #666; font-size: 14px;">조정신청서, 결정문 등 관련 문서(PDF/DOCX)를 선택해 주세요.<br>여러 파일을 선택하면 AI가 순차적으로 내용을 추출하여 다음 단계 폼에 자동으로 기입합니다.</p>
+              
+              <input type="file" id="file-input" multiple accept=".pdf,.docx" onchange="handleFileSelect(this.files)" style="display:none;">
+              <button class="btn btn-primary" onclick="document.getElementById('file-input').click()" style="padding: 12px 24px; font-size: 15px;">+ 파일 불러오기 창 열기</button>
+            </div>
+            
+            <div class="ai-loading-overlay" id="ai-loading">
+              <div class="spinner"></div>
+              <div id="ai-status-text">AI 분석 준비 중...</div>
+            </div>
+            
+            <div class="file-list" id="file-list-ui"></div>
+          </div>
+        </div>
+
+        <div class="step-content" id="sc2">
+          <div class="form-panel">
+            <h3>사건 기본 개요 확인</h3>
             <div class="field-grid col3">
               <div class="field"><label>발송일 <span class="required">*</span></label><input type="date" id="f-broadcast-date"></div>
               <div class="field"><label>신청일</label><input type="date" id="f-application-date"></div>
@@ -211,6 +261,9 @@
           </div>
           <div class="form-panel">
             <h3>보도 대상 매핑 및 담당라인</h3>
+            <div id="case-num-rows"></div>
+            <button class="btn btn-sm" style="margin-top:8px" onclick="addCaseNumRow()">+ 사건번호 추가</button>
+            <hr style="margin: 16px 0; border: none; border-top: 1px solid #eee;">
             <div class="field-grid col3">
               <div class="field"><label>보도 일자</label><input type="date" id="f-content-date"></div>
               <div class="field"><label>프로그램</label><input type="text" id="f-program"></div>
@@ -224,9 +277,10 @@
           </div>
         </div>
 
-        <div class="step-content" id="sc2">
+        <div class="step-content" id="sc3">
           <div class="form-panel">
-            <h3>대응 과정 진행 현황</h3>
+            <h3>대응 과정 진행 현황 확인</h3>
+            <p style="font-size: 13px; color: #888; margin-bottom: 12px;">AI가 추출한 내역이 있다면 아래 목록에 표시됩니다. 필요시 수동으로 추가/수정하세요.</p>
             <div id="event-list-ui" class="event-list"></div>
             <button class="btn btn-sm" onclick="togglePanel('event-form-panel')">+ 과정 이력 입력란 열기</button>
           </div>
@@ -242,9 +296,9 @@
           </div>
         </div>
 
-        <div class="step-content" id="sc3">
+        <div class="step-content" id="sc4">
           <div class="form-panel">
-            <h3>결과 유형</h3>
+            <h3>결과 유형 확인</h3>
             <div class="outcome-grid">
               <div class="outcome-card" id="card-ing" onclick="selectOutcome('진행 중',this)"><div class="oc-title">진행 중</div></div>
               <div class="outcome-card" id="card-ok" onclick="selectOutcome('조정성립',this)"><div class="oc-title">조정 성립</div></div>
@@ -253,47 +307,27 @@
             </div>
           </div>
           <div class="form-panel" id="outcome-detail-panel" style="display:none; border-top:3px solid #185FA5;">
-            <h3>조정 성립 확정 조항</h3>
+            <h3>조정 성립 확정 조항 검토</h3>
             <div class="field-grid col2">
               <div class="field"><label>결과 확정일 <span class="required">*</span></label><input type="date" id="oc-date"></div>
               <div class="field"><label>이행 기한 <span class="required">*</span></label><input type="date" id="oc-deadline"></div>
             </div>
             <div class="field" style="margin-top:14px"><label>합의 내용 요약 <span class="required">*</span></label><textarea id="oc-content"></textarea></div>
-            <div class="field" style="margin-top:14px"><label>지체 위약금 (원/일) <span class="required">*</span></label><input type="number" id="oc-penalty"></div>
-          </div>
-        </div>
-
-        <div class="step-content" id="sc4">
-          <div class="form-panel">
-            <h3>여러 문서 동시 드롭 (Gemini 자동 추출 일괄 처리)</h3>
-            <div class="file-drop" id="file-drop-zone" onclick="document.getElementById('file-input').click()"
-              ondragover="event.preventDefault();this.classList.add('dragover')"
-              ondragleave="this.classList.remove('dragover')"
-              ondrop="handleFileDrop(event)">
-              <input type="file" id="file-input" multiple accept=".pdf,.docx" onchange="handleFileSelect(this.files)">
-              <div style="font-size:36px;margin-bottom:10px;">🧬</div>
-              <div>여기에 복수의 PDF/DOCX 파일을 한 번에 끌어다 놓으세요.</div>
-              <div style="font-size:12px;color:#185FA5;margin-top:6px;font-weight:bold;">여러 파일을 올리면 제미나이가 순차적으로 데이터를 모두 추출하여 통합 필드에 자동 기입합니다.</div>
-            </div>
-            <div class="ai-loading-overlay" id="ai-loading">
-              <div class="spinner"></div>
-              <div id="ai-status-text">AI 분석 준비 중...</div>
-            </div>
-            <div class="file-list" id="file-list-ui"></div>
+            <div class="field" style="margin-top:14px"><label>지체 위약금 (원/일) <span class="required">*</span></label><input type="number" id="oc-penalty" placeholder="예: 500000"></div>
           </div>
         </div>
 
         <div class="step-content" id="sc5">
           <div class="form-panel">
-            <h3>데이터 확인</h3>
+            <h3>최종 데이터 확인 및 저장</h3>
             <table class="confirm-table" id="confirm-table"></table>
           </div>
         </div>
 
         <div class="form-bottom">
-          <button class="btn" id="btn-prev" onclick="prevStep()">← 이전</button>
+          <button class="btn" id="btn-prev" onclick="prevStep()">← 이전 단계</button>
           <span id="step-ind">1 / 5</span>
-          <button class="btn btn-primary" id="btn-next" onclick="nextStep()">다음 →</button>
+          <button class="btn btn-primary" id="btn-next" onclick="nextStep()">다음 단계 →</button>
         </div>
       </div>
 
@@ -308,34 +342,31 @@
 <div id="toast"></div>
 
 <script>
-// ── 보안 프로토콜 신규 발급 주소 매핑 고정 ──
 const SUPABASE_URL = 'https://uaiwjhoavxmhmrxlwqku.supabase.co';
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ4dnBqaGF4cGxycWx4eXl6eGxvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODExNDM2MDUsImV4cCI6MjA5NjcxOTYwNX0.pfcnUPN82_OA-w3jl3Xf0Kbjsdj9t2EqV2yyCYGJ7NU'; // 여기에 uaiwjhoavxmhmrxlwqku 프로젝트의 anon key를 넣어주세요.
+const SUPABASE_KEY = 'YOUR_NEW_ANON_PUBLIC_KEY'; // uaiwjhoavxmhmrxlwqku 프로젝트의 anon key를 입력하세요.
 const GEMINI_FUNCTION_URL = 'https://uaiwjhoavxmhmrxlwqku.supabase.co/functions/v1/smooth-api';
 
 const { createClient } = supabase;
 const db = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-// ── 시스템 라우팅 및 탭 메뉴 제어 ──
+// 메뉴 라우팅
 function changeMenu(target) {
   document.querySelectorAll('.sidebar .menu-btn').forEach(b => b.classList.remove('active'));
   document.querySelectorAll('.content-area .page-panel').forEach(p => p.classList.remove('active'));
-  
   document.getElementById(`m-${target}`).classList.add('active');
   document.getElementById(`p-${target}`).classList.add('active');
   closeMainPdf();
 }
 
 function switchTab(name) {
-  if(name === 'list' || name === 'form' || name === 'search') {
-    changeMenu(name);
-  } else if(name === 'detail') {
+  if(name === 'list' || name === 'form' || name === 'search') changeMenu(name);
+  else if(name === 'detail') {
     document.querySelectorAll('.content-area .page-panel').forEach(p => p.classList.remove('active'));
     document.getElementById('tab-detail').classList.add('active');
   }
 }
 
-// ── 세션 로그인 통제 ──
+// 로그인 제어
 async function doLogin() {
   const email = document.getElementById('email-input').value.trim();
   const password = document.getElementById('pw-input').value;
@@ -365,7 +396,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   }
 });
 
-// ── 데이터 수집 및 뷰 그리드 ──
+// 데이터 목록
 let cases = [];
 async function loadCases() {
   const { data, error } = await db.from('cases').select('*').order('broadcast_date', { ascending: false });
@@ -375,10 +406,7 @@ async function loadCases() {
 function renderCaseList() {
   const tbody = document.getElementById('case-tbody');
   document.getElementById('case-count').textContent = `총 ${cases.length}건`;
-  if(cases.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="6" class="empty-state">내역이 비어 있습니다.</td></tr>';
-    return;
-  }
+  if(cases.length === 0) { tbody.innerHTML = '<tr><td colspan="6" class="empty-state">내역이 비어 있습니다.</td></tr>'; return; }
   tbody.innerHTML = cases.map(c => `
     <tr onclick="showDetail(${c.id})">
       <td>${c.broadcast_date}</td>
@@ -390,8 +418,8 @@ function renderCaseList() {
     </tr>`).join('');
 }
 
-// ── 다중 파일 업로드 및 순차 제미나이 연동 루프 파싱 시스템 (핵심 개편) ──
-let selectedFiles = [], eventItems = [], selectedOutcome = '진행 중';
+// ── 핵심: 파일 불러오기 및 AI 순차 추출 ──
+let selectedFiles = [], eventItems = [], selectedOutcome = '진행 중', caseNums = [];
 
 async function handleFileSelect(files) {
   if (!files || files.length === 0) return;
@@ -403,7 +431,6 @@ async function handleFileSelect(files) {
   const session = await db.auth.getSession();
   const token = session.data.session ? session.data.session.access_token : '';
 
-  // 요구사항 반영: 여러 파일 순차 루프 추출 알고리즘 구현
   let idx = 1;
   for (const file of Array.from(files)) {
     if (!selectedFiles.find(x => x.name === file.name)) selectedFiles.push(file);
@@ -413,7 +440,6 @@ async function handleFileSelect(files) {
     try {
       const formData = new FormData();
       formData.append('file', file);
-
       const response = await fetch(GEMINI_FUNCTION_URL, {
         method: 'POST',
         headers: { 'Authorization': `Bearer ${token}` },
@@ -422,7 +448,7 @@ async function handleFileSelect(files) {
 
       if (response.ok) {
         const res = await response.json();
-        // 순차적으로 필드를 덮어쓰거나 누락된 영역을 점진적으로 결합 보정
+        // Step 2: 사건 기본 매핑
         if (res.broadcast_date) document.getElementById('f-broadcast-date').value = res.broadcast_date;
         if (res.application_date) document.getElementById('f-application-date').value = res.application_date;
         if (res.applicant_name) document.getElementById('f-applicant').value = res.applicant_name;
@@ -440,32 +466,45 @@ async function handleFileSelect(files) {
             if (res.claim_type.includes(cb.value)) cb.checked = true;
           });
         }
+        
+        // Step 3: 진행 과정 매핑 (백엔드가 events 배열을 반환하도록 설정된 경우)
+        if (res.events && Array.isArray(res.events)) {
+            res.events.forEach(ev => {
+                eventItems.push({ event_type: ev.type, event_date: ev.date, description: ev.desc, status: '완료' });
+            });
+            renderEventList();
+        }
+
+        // Step 4: 종결 유형 매핑
         if (res.status) {
           selectedOutcome = res.status;
-          document.querySelectorAll('#sc3 .outcome-card').forEach(c => c.classList.remove('selected'));
+          document.querySelectorAll('#sc4 .outcome-card').forEach(c => c.classList.remove('selected'));
           const m = { '진행 중': 'card-ing', '조정성립': 'card-ok', '조정불성립': 'card-no', '취하': 'card-cn' };
           if (m[selectedOutcome]) {
             document.getElementById(m[selectedOutcome]).classList.add('selected');
             document.getElementById('outcome-detail-panel').style.display = (selectedOutcome === '조정성립') ? 'block' : 'none';
           }
         }
+        if (res.outcome_date) document.getElementById('oc-date').value = res.outcome_date;
+        if (res.agreement_content) document.getElementById('oc-content').value = res.agreement_content;
+        if (res.penalty_per_day) document.getElementById('oc-penalty').value = res.penalty_per_day; // 한화(원) 기준 추출
       }
     } catch (e) {
-      console.error("파일 파싱 에러: ", e);
+      console.error("파싱 에러: ", e);
     }
     idx++;
   }
   
   renderFileList();
   overlay.style.display = 'none';
-  showToast('✨ 선택한 복수 파일의 분석 및 필드 결합이 완료되었습니다. 1단계를 검토해 주세요.');
-  goStep(1);
+  showToast('✨ 분석이 완료되었습니다. 2단계부터 사람이 직접 눈으로 확인 후 확정해 주세요.');
+  
+  // 1단계 분석이 끝났으므로 2단계(사건 기본 검토) 화면으로 자동 전환
+  goStep(2);
 }
 
-function handleFileDrop(e) { e.preventDefault(); this.classList.remove('dragover'); handleFileSelect(e.dataTransfer.files); }
 function renderFileList() {
-  document.getElementById('file-list-ui').innerHTML = selectedFiles.map((f,i) => `
-    <div class="file-item">📄 <span>${f.name}</span> <button class="icon-btn" onclick="selectedFiles.splice(${i},1);renderFileList();">✕</button></div>`).join('');
+  document.getElementById('file-list-ui').innerHTML = selectedFiles.map((f,i) => `<div class="file-item">📄 <span>${f.name}</span> <button class="icon-btn" onclick="selectedFiles.splice(${i},1);renderFileList();">✕</button></div>`).join('');
 }
 
 // ── 상세 검색 컴포넌트 ──
@@ -482,7 +521,7 @@ async function runIntegratedSearch() {
   if(status) result = result.filter(c => c.status === status);
   
   if(result.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="6" class="empty-state">검색 조건에 일치하는 기록이 없습니다.</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="6" class="empty-state">조건에 일치하는 기록이 없습니다.</td></tr>';
     return;
   }
   tbody.innerHTML = result.map(c => `
@@ -496,7 +535,7 @@ async function runIntegratedSearch() {
     </tr>`).join('');
 }
 
-// ── 상세 조회 및 30분 기한부 Signed URL 파일 뷰어 ──
+// ── 상세 조회 및 뷰어 ──
 async function showDetail(id) {
   const c = cases.find(x => x.id === id);
   if (!c) return;
@@ -511,10 +550,10 @@ async function showDetail(id) {
     <div class="detail-section">
       <div class="detail-section-header"><h3>사건 상세 내역 [신청인: ${c.applicant_name}]</h3><button class="btn btn-sm" onclick="switchTab('list')">목록으로</button></div>
       <div class="detail-row"><span class="detail-label">기준 발송일</span><span class="detail-val">${c.broadcast_date}</span></div>
-      <div class="detail-row"><span class="detail-label">중재부 정보</span><span class="detail-val">${c.arbitration_org || '-'}중재부</span></div>
-      <div class="detail-row"><span class="detail-label">청구 목록 유형</span><span class="detail-val">${c.claim_type.join(', ')}</span></div>
+      <div class="detail-row"><span class="detail-label">중재부 관할</span><span class="detail-val">${c.arbitration_org || '-'}중재부</span></div>
+      <div class="detail-row"><span class="detail-label">청구 목록</span><span class="detail-val">${c.claim_type.join(', ')}</span></div>
       <div class="detail-row"><span class="detail-label">기사 타이틀</span><span class="detail-val">${c.content_title || '-'}</span></div>
-      <div class="detail-row"><span class="detail-label">진행 등급 상태</span><span class="badge badge-${c.status.replace(' ', '_')}">${c.status}</span></div>
+      <div class="detail-row"><span class="detail-label">진행 등급</span><span class="badge badge-${c.status.replace(' ', '_')}">${c.status}</span></div>
     </div>`;
     
   if(out && out.outcome_type === '조정성립') {
@@ -560,15 +599,18 @@ function goStep(n) {
   document.getElementById('sc'+curStep).classList.add('active');
   document.getElementById('snav'+curStep).classList.add('active');
   document.getElementById('step-ind').textContent = `${curStep} / 5`;
+  
   document.getElementById('btn-prev').style.visibility = curStep === 1 ? 'hidden' : 'visible';
-  document.getElementById('btn-next').textContent = curStep === 5 ? '💾 보안 시스템 저장' : '다음 →';
+  document.getElementById('btn-next').style.display = curStep === 1 ? 'none' : 'inline-block'; // 1단계에서는 다음 버튼 숨김 (파일 업로드 후 자동 넘어감)
+  document.getElementById('btn-next').textContent = curStep === 5 ? '💾 보안 시스템 저장' : '다음 단계 →';
+  
   if (curStep === 5) renderConfirm();
 }
 function nextStep() { if (curStep < 5) goStep(curStep+1); else saveMasterTransaction(); }
 function prevStep() { if (curStep > 1) goStep(curStep-1); }
 
 function selectOutcome(type, el) {
-  document.querySelectorAll('#sc3 .outcome-card').forEach(c => c.classList.remove('selected'));
+  document.querySelectorAll('#sc4 .outcome-card').forEach(c => c.classList.remove('selected'));
   el.classList.add('selected'); selectedOutcome = type;
   document.getElementById('outcome-detail-panel').style.display = (type==='조정성립') ? 'block' : 'none';
 }
@@ -579,6 +621,18 @@ function addEventItem() {
 }
 function renderEventList() {
   document.getElementById('event-list-ui').innerHTML = eventItems.map(e => `<div class="event-item"><div class="event-dot dot-${e.event_type.replace(' ','_')}"></div><div class="event-label"><strong>[${e.event_type}]</strong> ${e.description}</div><div class="event-date">${e.event_date}</div></div>`).join('');
+}
+
+function addCaseNumRow() { caseNums.push({court:'2026서울조정',num:'',target:'KBS미디어'}); renderCaseNums(); }
+function renderCaseNums() {
+  const courtOpts = ['2026서울조정','2026부산조정','2026대구조정','2026광주조정','2026대전조정','2026경기조정','2026강원조정','2026충북조정','2026전북조정','2026경남조정','2026제주조정'];
+  document.getElementById('case-num-rows').innerHTML = caseNums.map((cn,i) => `
+    <div class="case-num-row">
+      <select onchange="caseNums[${i}].court=this.value" style="flex:1.5">${courtOpts.map(v=>`<option${cn.court===v?' selected':''}>${v}</option>`).join('')}</select>
+      <input type="text" placeholder="사건번호" value="${cn.num}" oninput="caseNums[${i}].num=this.value" style="flex:1">
+      <select onchange="caseNums[${i}].target=this.value" style="flex:1.2"><option ${cn.target==='KBS미디어'?'selected':''}>KBS미디어</option><option ${cn.target==='한국방송공사'?'selected':''}>한국방송공사</option></select>
+      <button class="icon-btn" onclick="caseNums.splice(${i},1); renderCaseNums();">✕</button>
+    </div>`).join('');
 }
 
 function renderConfirm() {
@@ -592,7 +646,14 @@ function renderConfirm() {
   document.getElementById('confirm-table').innerHTML = rows.map(([k,v])=>`<tr><td>${k}</td><td><strong>${v}</strong></td></tr>`).join('');
 }
 
-// ── 최종 저장 트랜잭션 마스터 구문 ──
+function safeName(originalName) {
+  const dotIdx = originalName.lastIndexOf('.');
+  const ext  = dotIdx !== -1 ? originalName.slice(dotIdx) : '';
+  const base = dotIdx !== -1 ? originalName.slice(0, dotIdx) : originalName;
+  return (base.replace(/[^a-zA-Z0-9_-]/g, '_') || 'secure_doc') + ext;
+}
+
+// ── 최종 저장 트랜잭션 마스터 ──
 async function saveMasterTransaction() {
   const applicant = document.getElementById('f-applicant').value.trim();
   const broadcastDate = document.getElementById('f-broadcast-date').value;
@@ -615,11 +676,14 @@ async function saveMasterTransaction() {
 
     if(eventItems.length > 0) await db.from('case_events').insert(eventItems.map(e=>({...e, case_id:cid})));
 
+    const validNums = caseNums.filter(n=>n.num.trim());
+    if (validNums.length > 0) await db.from('case_numbers').insert(validNums.map(n=>({ case_id: cid, court: n.court, case_number: n.num, respondent_target: n.target })));
+
     const outcomePayload = {
       case_id: cid, outcome_type: selectedOutcome,
       outcome_date: document.getElementById('oc-date').value || null, deadline_date: document.getElementById('oc-deadline').value || null,
       agreement_content: document.getElementById('oc-content').value, penalty_per_day: parseInt(document.getElementById('oc-penalty').value) || null,
-      follow_up_status: document.getElementById('oc-followup').value || '해당없음'
+      follow_up_status: '해당없음'
     };
     await db.from('case_outcomes').insert(outcomePayload);
 
@@ -638,14 +702,16 @@ async function saveMasterTransaction() {
 }
 
 function resetForm() {
-  curStep = 1; selectedFiles = []; eventItems = []; selectedOutcome = '진행 중';
+  curStep = 1; selectedFiles = []; eventItems = []; caseNums = [{court:'2026서울조정',num:'',target:'KBS미디어'}]; selectedOutcome = '진행 중';
   ['f-broadcast-date','f-application-date','f-applicant','f-program','f-title','f-reporter','f-reporter-org','f-attorney','oc-date','oc-deadline','oc-content','oc-penalty'].forEach(id => {
     const el = document.getElementById(id); if(el) el.value = '';
   });
   document.querySelectorAll('input[name="claim-type-cb"]').forEach(cb => cb.checked = false);
+  renderFileList(); renderCaseNums(); renderEventList();
   goStep(1);
 }
 function togglePanel(id) { const el = document.getElementById(id); el.style.display = el.style.display === 'none' ? 'block' : 'none'; }
+function showToast(msg) { const t = document.getElementById('toast'); t.textContent = msg; t.style.display = 'block'; setTimeout(() => t.style.display = 'none', 3500); }
 </script>
 </body>
 </html>
