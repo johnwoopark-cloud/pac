@@ -70,14 +70,16 @@
   /* 청구 유형: 4칸 균등 정렬 (위아래로 갈라지지 않도록) */
   .checkbox-group { display: flex; gap: 16px; padding: 8px 4px; flex-wrap: wrap; }
   .checkbox-group label { display: flex; align-items: center; gap: 6px; font-size: 14px; color: #1a1a1a; cursor: pointer; }
-  .checkbox-group.claim { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; padding: 4px 0; }
-  .checkbox-group.claim label { justify-content: center; border: 1px solid #ddd; border-radius: 8px; padding: 11px 8px; background: #fff; transition: all 0.15s; }
+  .checkbox-group.claim { display: flex; flex-wrap: wrap; gap: 10px; padding: 4px 0; }
+  .checkbox-group.claim label { justify-content: center; border: 1px solid #ddd; border-radius: 8px; padding: 9px 18px; background: #fff; transition: all 0.15s; white-space: nowrap; flex: 0 0 auto; }
   .checkbox-group.claim label:hover { border-color: #185FA5; }
   .checkbox-group.claim label:has(input:checked) { border-color: #185FA5; background: #E6F1FB; color: #185FA5; font-weight: 500; }
   .required { color: #E24B4A; }
 
   /* 파일 불러오기 창 및 로딩 오버레이 */
-  .upload-box { text-align: center; padding: 40px 20px; background: #fafaf8; border: 1px solid #e0e0e0; border-radius: 10px; }
+  .upload-box { text-align: center; padding: 40px 20px; background: #fafaf8; border: 2px dashed #d5d5cf; border-radius: 10px; transition: all 0.15s; }
+  .upload-box.drag { border-color: #185FA5; background: #E6F1FB; }
+  .upload-box.drag * { pointer-events: none; }
   .file-list { margin-top: 12px; display: flex; flex-direction: column; gap: 6px; }
   .file-item { display: flex; gap: 10px; align-items: center; padding: 8px 12px; border: 1px solid #eee; border-radius: 8px; font-size: 13px; background: #fff; }
   .file-item span { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -116,6 +118,16 @@
   .confirm-table td { padding: 11px 0; font-size: 14px; border-bottom: 1px solid #f0f0f0; }
   .confirm-table td:first-child { color: #888; width: 35%; }
   .form-bottom { display: flex; justify-content: space-between; align-items: center; padding-top: 16px; margin-top: 8px; border-top: 1px solid #eee; }
+
+  /* 가로 타임라인 */
+  .timeline { overflow-x: auto; padding: 34px 6px 8px; margin-bottom: 18px; }
+  .timeline-track { position: relative; display: flex; min-width: 100%; }
+  .timeline-line { position: absolute; top: 7px; left: 6%; right: 6%; height: 2px; background: #e2e2dc; z-index: 0; }
+  .timeline-node { position: relative; flex: 1 0 130px; text-align: center; padding-top: 24px; z-index: 1; }
+  .timeline-node .tl-dot { position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 16px; height: 16px; border-radius: 50%; border: 3px solid #fff; box-shadow: 0 0 0 1px #ddd; }
+  .timeline-node .tl-label { font-size: 12px; font-weight: 600; }
+  .timeline-node .tl-date { font-size: 11px; color: #999; margin-top: 2px; }
+  .timeline-empty { color: #bbb; font-size: 13px; padding: 6px 2px; }
 
   .event-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; }
   .event-item { display: flex; gap: 12px; align-items: center; padding: 12px 14px; border: 1px solid #eee; border-radius: 8px; background: #fafaf8; }
@@ -221,9 +233,9 @@
         <div class="step-content active" id="sc1">
           <div class="form-panel">
             <h3>사건 문서 파일 불러오기 (Gemini AI 분석)</h3>
-            <div class="upload-box">
+            <div class="upload-box" id="drop-zone" ondragover="onDragOver(event)" ondragleave="onDragLeave(event)" ondrop="onDrop(event)">
               <div style="font-size:36px; margin-bottom:10px;">📂</div>
-              <p style="margin-bottom: 16px; color: #666; font-size: 14px;">조정신청서, 결정문 등 관련 문서(PDF/DOCX)를 선택해 주세요.<br>여러 파일을 선택하면 AI가 순차적으로 내용을 추출하여 다음 단계 폼에 자동으로 기입합니다.</p>
+              <p style="margin-bottom: 16px; color: #666; font-size: 14px;">조정신청서, 결정문 등 관련 문서(PDF/DOCX)를 <strong>이 영역으로 끌어다 놓거나</strong> 아래 버튼으로 선택해 주세요.<br>여러 파일을 선택하면 AI가 순차적으로 내용을 추출하여 다음 단계 폼에 자동으로 기입합니다.</p>
 
               <input type="file" id="file-input" multiple accept=".pdf,.docx" onchange="handleFileSelect(this.files)" style="display:none;">
               <button class="btn btn-primary" onclick="document.getElementById('file-input').click()" style="padding: 12px 24px; font-size: 15px;">+ 파일 불러오기 창 열기</button>
@@ -294,7 +306,8 @@
         <div class="step-content" id="sc3">
           <div class="form-panel">
             <h3>대응 과정 진행 현황 확인</h3>
-            <p style="font-size: 13px; color: #888; margin-bottom: 12px;">AI가 추출한 내역이 있다면 아래 목록에 표시됩니다. 필요시 수동으로 추가/수정하세요.</p>
+            <p style="font-size: 13px; color: #888; margin-bottom: 12px;">AI가 추출한 내역이 아래 타임라인과 상세 목록에 표시됩니다. 필요시 수동으로 추가/수정하세요.</p>
+            <div id="timeline-ui" class="timeline"></div>
             <div id="event-list-ui" class="event-list"></div>
             <button class="btn btn-sm" onclick="togglePanel('event-form-panel')">+ 과정 이력 입력란 열기</button>
           </div>
@@ -472,6 +485,19 @@ function normalizeRespondent(v) {
   if (hasHan) return '한국방송공사';
   if (hasKbs) return '케이비에스미디어';
   return '';
+}
+
+// 드래그 앤 드롭
+function onDragOver(e) { e.preventDefault(); document.getElementById('drop-zone').classList.add('drag'); }
+function onDragLeave(e) { e.preventDefault(); document.getElementById('drop-zone').classList.remove('drag'); }
+function onDrop(e) {
+  e.preventDefault();
+  document.getElementById('drop-zone').classList.remove('drag');
+  const dropped = e.dataTransfer && e.dataTransfer.files ? Array.from(e.dataTransfer.files) : [];
+  const allowed = dropped.filter(f => /\.(pdf|docx)$/i.test(f.name));
+  if (allowed.length === 0) { showToast('PDF 또는 DOCX 파일만 첨부할 수 있습니다.'); return; }
+  if (allowed.length < dropped.length) showToast('PDF/DOCX가 아닌 파일은 제외되었습니다.');
+  handleFileSelect(allowed);
 }
 
 async function handleFileSelect(files) {
@@ -704,8 +730,34 @@ function addEventItem() {
   document.getElementById('ev-desc').value = '';
   renderEventList();
 }
+function renderTimeline() {
+  const el = document.getElementById('timeline-ui');
+  if (!el) return;
+  if (!eventItems.length) { el.innerHTML = '<div class="timeline-empty">추출되거나 입력된 진행 과정이 없습니다.</div>'; return; }
+  const sorted = [...eventItems].sort((a, b) => String(a.event_date || '').localeCompare(String(b.event_date || '')));
+  const nodes = sorted.map(e => `
+    <div class="timeline-node">
+      <div class="tl-dot dot-${statusKey(e.event_type)}"></div>
+      <div class="tl-label">${esc(e.event_type)}</div>
+      <div class="tl-date">${esc(e.event_date) || '-'}</div>
+    </div>`).join('');
+  el.innerHTML = `<div class="timeline-track"><div class="timeline-line"></div>${nodes}</div>`;
+}
+
 function renderEventList() {
-  document.getElementById('event-list-ui').innerHTML = eventItems.map(e => `<div class="event-item"><div class="event-dot dot-${statusKey(e.event_type)}"></div><div class="event-label"><strong>[${esc(e.event_type)}]</strong> ${esc(e.description)}</div><div class="event-date">${esc(e.event_date)}</div></div>`).join('');
+  const list = document.getElementById('event-list-ui');
+  const withIdx = eventItems.map((e, i) => ({ e, i }));
+  withIdx.sort((a, b) => String(a.e.event_date || '').localeCompare(String(b.e.event_date || '')));
+  list.innerHTML = withIdx.map(({ e, i }) => `
+    <div class="event-item">
+      <div class="event-dot dot-${statusKey(e.event_type)}"></div>
+      <div class="event-label">
+        <strong>[${esc(e.event_type)}]</strong> <span style="color:#aaa;">${esc(e.event_date) || '-'}</span>
+        <div style="color:#555; font-size:13px; margin-top:3px; white-space:pre-wrap;">${esc(e.description) || '상세 메모 없음'}</div>
+      </div>
+      <button class="icon-btn" onclick="eventItems.splice(${i},1); renderEventList();">✕</button>
+    </div>`).join('');
+  renderTimeline();
 }
 
 function addCaseNumRow() { caseNums.push({ court: '2026서울조정', numHan: '', numKbs: '' }); renderCaseNums(); }
