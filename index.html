@@ -231,6 +231,10 @@
       </div>
 
       <div id="p-form" class="page-panel">
+        <div id="edit-banner" style="display:none; background:#E6F1FB; border:1px solid #b7d4ee; color:#185FA5; padding:12px 16px; border-radius:10px; margin-bottom:16px; justify-content:space-between; align-items:center;">
+          <span id="edit-banner-text" style="font-size:14px; font-weight:500;"></span>
+          <button class="btn btn-sm" onclick="cancelEditCase()">수정 취소 (신규 입력으로 전환)</button>
+        </div>
         <div class="step-nav">
           <div class="step-item active" id="snav1" onclick="goStep(1)">1. 문서 파일 불러오기</div>
           <div class="step-item" id="snav2" onclick="goStep(2)">2. 사건 기본 검토</div>
@@ -414,6 +418,15 @@ function esc(s) {
 }
 function statusKey(s) { return String(s || '').replace(/ /g, '_'); }
 
+// ── 세션 (현재는 계정별 권한 구분 없이 전원 편집 가능) ────
+let currentUserId = null;
+
+async function initSession(user) {
+  currentUserId = user.id;
+  document.getElementById('current-user-ui').textContent = user.email;
+  loadCases();
+}
+
 // 메뉴 라우팅
 function changeMenu(target) {
   document.querySelectorAll('.sidebar .menu-btn').forEach(b => b.classList.remove('active'));
@@ -443,8 +456,7 @@ async function doLogin() {
   } else {
     document.getElementById('login-screen').style.display = 'none';
     document.getElementById('app').style.display = 'block';
-    document.getElementById('current-user-ui').textContent = data.user.email;
-    loadCases();
+    await initSession(data.user);
   }
 }
 
@@ -459,8 +471,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   if (session) {
     document.getElementById('login-screen').style.display = 'none';
     document.getElementById('app').style.display = 'block';
-    document.getElementById('current-user-ui').textContent = session.user.email;
-    loadCases();
+    await initSession(session.user);
   }
 });
 
@@ -706,7 +717,13 @@ async function showDetail(id) {
 
   let html = `
     <div class="detail-section">
-      <div class="detail-section-header"><h3>사건 상세 내역 [신청인: ${esc(c.applicant_name)}]</h3><button class="btn btn-sm" onclick="switchTab('list')">목록으로</button></div>
+      <div class="detail-section-header">
+        <h3>사건 상세 내역 [신청인: ${esc(c.applicant_name)}]</h3>
+        <div style="display:flex; gap:8px;">
+          <button class="btn btn-sm btn-primary" onclick="startEditCase(${c.id})">✎ 사건 수정</button>
+          <button class="btn btn-sm" onclick="switchTab('list')">목록으로</button>
+        </div>
+      </div>
       <div class="detail-row"><span class="detail-label">최초 문서 발송일</span><span class="detail-val">${esc(c.broadcast_date) || '-'}</span></div>
       <div class="detail-row"><span class="detail-label">중재부 관할</span><span class="detail-val">${esc(c.arbitration_org) || '-'}중재부</span></div>
       <div class="detail-row"><span class="detail-label">청구 목록</span><span class="detail-val">${esc(claims.join(', ')) || '-'}</span></div>
@@ -727,23 +744,18 @@ async function showDetail(id) {
     </div>`;
   }
 
-  // 후속조치 (조정 합의 내용 바로 아래)
-  const followEvents = evs.filter(e => e.event_type === '후속조치')
+  // 후속조치 (조정 합의 내용 바로 아래) — 권한별 입력 UI
+  detailCaseId = id;
+  detailOutcome = out || null;
+  detailFollowEvents = evs.filter(e => e.event_type === '후속조치')
     .sort((a, b) => String(a.event_date || '').localeCompare(String(b.event_date || '')));
+  editingFollowId = null;
+
   html += `
     <div class="detail-section" style="border-left:4px solid #534AB7;">
       <h3>후속조치</h3>
-      <div class="detail-row"><span class="detail-label">후속조치 상태</span><span class="detail-val">${esc((out && out.follow_up_status) || '해당없음')}</span></div>`;
-  if (followEvents.length) {
-    html += followEvents.map(e => `
-      <div class="detail-row">
-        <span class="detail-label">${esc(e.event_date) || '-'}</span>
-        <span class="detail-val" style="white-space:pre-wrap; font-weight:400;">${esc(e.description) || '상세 메모 없음'}</span>
-      </div>`).join('');
-  } else {
-    html += `<div class="detail-row"><span class="detail-label">등록 내역</span><span class="detail-val" style="color:#bbb; font-weight:400;">등록된 후속조치 내역이 없습니다.</span></div>`;
-  }
-  html += `</div>`;
+      <div id="followup-body"></div>
+    </div>`;
 
   html += `
     <div class="detail-section">
@@ -755,7 +767,207 @@ async function showDetail(id) {
   html += `</div></div>`;
 
   document.getElementById('detail-content').innerHTML = html;
+  renderFollowupBody();
   switchTab('detail');
+}
+
+// ── 후속조치 섹션 (master: 전체 / reader: 추가 + 본인글 수정) ──
+let detailCaseId = null, detailOutcome = null, detailFollowEvents = [], editingFollowId = null;
+const FU_STATUSES = ['해당없음', '진행 예정', '진행 중', '이행 완료', '미이행'];
+
+function renderFollowupBody() {
+  const box = document.getElementById('followup-body');
+  if (!box) return;
+  const writable = true;
+  const cur = (detailOutcome && detailOutcome.follow_up_status) || '해당없음';
+
+  // 1) 상태
+  let h = `<div class="detail-row"><span class="detail-label">후속조치 상태</span><span class="detail-val">`;
+  if (writable && detailOutcome) {
+    h += `<select id="fu-status" style="padding:6px 10px;border:1px solid #ddd;border-radius:6px;font-family:inherit;">
+            ${FU_STATUSES.map(s => `<option${s === cur ? ' selected' : ''}>${esc(s)}</option>`).join('')}
+          </select>
+          <button class="btn btn-sm btn-primary" style="margin-left:8px" onclick="saveFollowStatus()">상태 저장</button>`;
+  } else {
+    h += esc(cur) + (detailOutcome ? '' : ' <span style="color:#bbb;font-weight:400;">(조정 결과 레코드 없음)</span>');
+  }
+  h += `</span></div>`;
+
+  // 2) 내역 목록
+  if (detailFollowEvents.length) {
+    h += detailFollowEvents.map(e => {
+      const mine = e.created_by && e.created_by === currentUserId;
+      const editable = true;
+      if (editingFollowId === e.id) {
+        return `
+        <div class="detail-row" style="flex-direction:column; align-items:stretch; gap:8px; background:#f7f6fc; border-radius:8px; padding:12px;">
+          <input type="date" id="fu-edit-date" value="${esc(e.event_date) || ''}" style="padding:8px;border:1px solid #ddd;border-radius:6px;max-width:200px;">
+          <textarea id="fu-edit-desc" style="padding:8px;border:1px solid #ddd;border-radius:6px;min-height:70px;font-family:inherit;">${esc(e.description) || ''}</textarea>
+          <div style="display:flex;gap:8px;">
+            <button class="btn btn-sm btn-primary" onclick="saveFollowEdit(${e.id})">수정 저장</button>
+            <button class="btn btn-sm" onclick="editingFollowId=null;renderFollowupBody();">취소</button>
+          </div>
+        </div>`;
+      }
+      return `
+      <div class="detail-row" style="align-items:flex-start;">
+        <span class="detail-label">${esc(e.event_date) || '-'}${mine ? '<br><span style="font-size:11px;color:#534AB7;">내가 작성</span>' : ''}</span>
+        <span class="detail-val" style="white-space:pre-wrap; font-weight:400; flex:1;">${esc(e.description) || '상세 메모 없음'}</span>
+        ${editable ? `<button class="icon-btn" title="수정" onclick="editingFollowId=${e.id};renderFollowupBody();">✎</button>` : ''}
+        <button class="icon-btn" title="삭제" onclick="deleteFollowUp(${e.id})">✕</button>
+      </div>`;
+    }).join('');
+  } else {
+    h += `<div class="detail-row"><span class="detail-label">등록 내역</span><span class="detail-val" style="color:#bbb; font-weight:400;">등록된 후속조치 내역이 없습니다.</span></div>`;
+  }
+
+  // 3) 신규 등록 폼
+  if (writable) {
+    h += `
+    <div style="margin-top:14px; padding-top:14px; border-top:1px dashed #ddd;">
+      <div style="font-size:12px;color:#888;margin-bottom:8px;font-weight:500;">후속조치 등록</div>
+      <div style="display:flex; gap:8px; align-items:flex-start;">
+        <input type="date" id="fu-new-date" style="padding:9px;border:1px solid #ddd;border-radius:6px;flex:0 0 170px;">
+        <textarea id="fu-new-desc" placeholder="이행 내용, 확인 사항 등을 입력하세요" style="padding:9px;border:1px solid #ddd;border-radius:6px;flex:1;min-height:44px;font-family:inherit;"></textarea>
+        <button class="btn btn-primary" onclick="addFollowUp()">등록</button>
+      </div>
+    </div>`;
+  }
+
+  box.innerHTML = h;
+}
+
+async function saveFollowStatus() {
+  const status = document.getElementById('fu-status').value;
+  const { error } = await db.rpc('set_follow_up_status', { p_case_id: detailCaseId, p_status: status });
+  if (error) { showToast('상태 저장 실패: ' + error.message); return; }
+  showToast('✅ 후속조치 상태가 저장되었습니다.');
+  await showDetail(detailCaseId);
+}
+
+async function addFollowUp() {
+  const d = document.getElementById('fu-new-date').value;
+  const desc = document.getElementById('fu-new-desc').value.trim();
+  if (!d || !desc) { showToast('일자와 내용을 모두 입력해 주세요.'); return; }
+
+  const payload = { case_id: detailCaseId, event_type: '후속조치', event_date: d, description: desc, status: '완료' };
+  if (currentUserId) payload.created_by = currentUserId; // reader 정책 통과에 필요
+
+  const { error } = await db.from('case_events').insert(payload);
+  if (error) { showToast('등록 실패: ' + error.message); return; }
+  showToast('✅ 후속조치가 등록되었습니다.');
+  await showDetail(detailCaseId);
+}
+
+async function saveFollowEdit(eventId) {
+  const d = document.getElementById('fu-edit-date').value;
+  const desc = document.getElementById('fu-edit-desc').value.trim();
+  if (!d || !desc) { showToast('일자와 내용을 모두 입력해 주세요.'); return; }
+
+  const { error } = await db.from('case_events')
+    .update({ event_date: d, description: desc })
+    .eq('id', eventId);
+  if (error) { showToast('수정 실패: ' + error.message); return; }
+  editingFollowId = null;
+  showToast('✅ 후속조치가 수정되었습니다.');
+  await showDetail(detailCaseId);
+}
+
+async function deleteFollowUp(eventId) {
+  const { error } = await db.from('case_events').delete().eq('id', eventId);
+  if (error) { showToast('삭제 실패: ' + error.message); return; }
+  await showDetail(detailCaseId);
+}
+
+// ── 사건 수정 모드 ─────────────────────────────────────────
+let editingCaseId = null;
+let deletedEventIds = [];
+
+async function startEditCase(id) {
+  const [{ data: c, error: cErr }, { data: evs }, { data: nums }, { data: outs }] = await Promise.all([
+    db.from('cases').select('*').eq('id', id).single(),
+    db.from('case_events').select('*').eq('case_id', id),
+    db.from('case_numbers').select('*').eq('case_id', id),
+    db.from('case_outcomes').select('*').eq('case_id', id)
+  ]);
+  if (cErr || !c) { showToast('사건 정보를 불러오지 못했습니다.'); return; }
+
+  resetForm();               // 폼 초기화 (editingCaseId 도 null 로 세팅됨)
+  editingCaseId = id;        // 그 다음 편집 모드 설정
+  deletedEventIds = [];
+
+  // 2단계: 기본 정보
+  const set = (elId, v) => { const el = document.getElementById(elId); if (el) el.value = v || ''; };
+  set('f-broadcast-date', c.broadcast_date);
+  set('f-application-date', c.application_date);
+  set('f-applicant', c.applicant_name);
+  set('f-program', c.target_program);
+  set('f-content-date', c.broadcast_content_date);
+  set('f-title', c.content_title);
+  set('f-reporter', c.assigned_reporter);
+  set('f-reporter-org', c.reporter_org);
+  set('f-attorney', c.kbs_attorney);
+  set('f-arb-org', c.arbitration_org);
+  document.getElementById('f-respondent').value = normalizeRespondent(c.respondent_name) || '케이비에스미디어';
+
+  const claims = Array.isArray(c.claim_type) ? c.claim_type : [];
+  document.querySelectorAll('input[name="claim-type-cb"]').forEach(cb => { cb.checked = claims.includes(cb.value); });
+
+  // 사건번호: court 기준으로 한국방송공사 / 케이비에스미디어 쌍으로 병합
+  const byCourt = {};
+  (nums || []).forEach(n => {
+    if (!byCourt[n.court]) byCourt[n.court] = { court: n.court, numHan: '', numKbs: '' };
+    if (n.respondent_target === '한국방송공사') byCourt[n.court].numHan = n.case_number || '';
+    else byCourt[n.court].numKbs = n.case_number || '';
+  });
+  caseNums = Object.values(byCourt);
+  if (!caseNums.length) caseNums = [{ court: '2026서울조정', numHan: '', numKbs: '' }];
+  renderCaseNums();
+
+  // 3단계: 진행 과정 (id 를 보존해야 후속조치 작성자 정보가 유지됨)
+  eventItems = (evs || []).map(e => ({
+    id: e.id, event_type: e.event_type, event_date: e.event_date,
+    description: e.description, status: e.status || '완료', created_by: e.created_by
+  }));
+  renderEventList();
+
+  // 4단계: 결과
+  selectedOutcome = c.status || '진행 중';
+  document.querySelectorAll('#sc4 .outcome-card').forEach(x => x.classList.remove('selected'));
+  const map = { '진행 중': 'card-ing', '조정성립': 'card-ok', '조정불성립': 'card-no', '취하': 'card-cn' };
+  if (map[selectedOutcome]) document.getElementById(map[selectedOutcome]).classList.add('selected');
+  document.getElementById('outcome-detail-panel').style.display = (selectedOutcome === '조정성립') ? 'block' : 'none';
+
+  const out = outs && outs[0];
+  if (out) {
+    set('oc-date', out.outcome_date);
+    set('oc-deadline', out.deadline_date);
+    set('oc-content', out.agreement_content);
+    set('oc-penalty', out.penalty_per_day);
+    document.getElementById('oc-followup').value = out.follow_up_status || '해당없음';
+  }
+
+  applyEditBanner(c.applicant_name);
+  changeMenu('form');
+  goStep(2);
+}
+
+function applyEditBanner(name) {
+  const b = document.getElementById('edit-banner');
+  if (editingCaseId) {
+    b.style.display = 'flex';
+    document.getElementById('edit-banner-text').textContent = `✎ 기존 사건 수정 중 — [${name || '사건 #' + editingCaseId}]`;
+  } else {
+    b.style.display = 'none';
+  }
+  document.getElementById('btn-next').textContent = curStep === 5
+    ? (editingCaseId ? '💾 수정 내용 저장' : '💾 보안 시스템 저장')
+    : '다음 단계 →';
+}
+
+function cancelEditCase() {
+  resetForm();
+  showToast('신규 입력 모드로 전환되었습니다.');
 }
 
 async function openDocByIndex(i) {
@@ -791,7 +1003,9 @@ function goStep(n) {
 
   document.getElementById('btn-prev').style.visibility = curStep === 1 ? 'hidden' : 'visible';
   document.getElementById('btn-next').style.display = curStep === 1 ? 'none' : 'inline-block';
-  document.getElementById('btn-next').textContent = curStep === 5 ? '💾 보안 시스템 저장' : '다음 단계 →';
+  document.getElementById('btn-next').textContent = curStep === 5
+    ? (editingCaseId ? '💾 수정 내용 저장' : '💾 보안 시스템 저장')
+    : '다음 단계 →';
 
   if (curStep === 5) renderConfirm();
 }
@@ -860,6 +1074,8 @@ function submitEventItem() {
 }
 
 function deleteEventItem(i) {
+  const target = eventItems[i];
+  if (target && target.id) deletedEventIds.push(target.id);
   if (editingEventIdx === i) { editingEventIdx = null; cancelEventEdit(); }
   else if (editingEventIdx !== null && editingEventIdx > i) editingEventIdx--;
   eventItems.splice(i, 1);
@@ -966,47 +1182,117 @@ async function saveMasterTransaction() {
   document.getElementById('btn-prev').disabled = true;
   btn.innerHTML = '<span class="spinner"></span> 저장 중...';
 
-  try {
-    const { data: cData, error: cErr } = await db.from('cases').insert({
-      broadcast_date: broadcastDate, application_date: document.getElementById('f-application-date').value || null,
-      claim_type: cTypes, applicant_name: applicant, respondent_name: document.getElementById('f-respondent').value,
-      target_program: document.getElementById('f-program').value, broadcast_content_date: document.getElementById('f-content-date').value || null,
-      content_title: document.getElementById('f-title').value, arbitration_org: document.getElementById('f-arb-org').value,
-      assigned_reporter: document.getElementById('f-reporter').value, reporter_org: document.getElementById('f-reporter-org').value,
-      kbs_attorney: document.getElementById('f-attorney').value, status: selectedOutcome
-    }).select().single();
+  const casePayload = {
+    broadcast_date: broadcastDate,
+    application_date: document.getElementById('f-application-date').value || null,
+    claim_type: cTypes,
+    applicant_name: applicant,
+    respondent_name: document.getElementById('f-respondent').value,
+    target_program: document.getElementById('f-program').value,
+    broadcast_content_date: document.getElementById('f-content-date').value || null,
+    content_title: document.getElementById('f-title').value,
+    arbitration_org: document.getElementById('f-arb-org').value,
+    assigned_reporter: document.getElementById('f-reporter').value,
+    reporter_org: document.getElementById('f-reporter-org').value,
+    kbs_attorney: document.getElementById('f-attorney').value,
+    status: selectedOutcome
+  };
 
-    if (cErr) throw cErr;
-    const cid = cData.id;
+  const outcomeFields = {
+    outcome_type: selectedOutcome,
+    outcome_date: document.getElementById('oc-date').value || null,
+    deadline_date: document.getElementById('oc-deadline').value || null,
+    agreement_content: document.getElementById('oc-content').value,
+    penalty_per_day: parseInt(document.getElementById('oc-penalty').value) || null,
+    follow_up_status: document.getElementById('oc-followup').value || '해당없음'
+  };
 
-    if (eventItems.length > 0) await db.from('case_events').insert(eventItems.map(e => ({ ...e, case_id: cid })));
-
-    // 사건번호: 한국방송공사 / 케이비에스미디어 각각 분리 저장
-    const validNums = [];
+  const buildNums = (cid) => {
+    const arr = [];
     caseNums.forEach(cn => {
-      if (cn.numHan && cn.numHan.trim()) validNums.push({ case_id: cid, court: cn.court, case_number: cn.numHan.trim(), respondent_target: '한국방송공사' });
-      if (cn.numKbs && cn.numKbs.trim()) validNums.push({ case_id: cid, court: cn.court, case_number: cn.numKbs.trim(), respondent_target: '케이비에스미디어' });
+      if (cn.numHan && cn.numHan.trim()) arr.push({ case_id: cid, court: cn.court, case_number: cn.numHan.trim(), respondent_target: '한국방송공사' });
+      if (cn.numKbs && cn.numKbs.trim()) arr.push({ case_id: cid, court: cn.court, case_number: cn.numKbs.trim(), respondent_target: '케이비에스미디어' });
     });
-    if (validNums.length > 0) await db.from('case_numbers').insert(validNums);
+    return arr;
+  };
 
-    const outcomePayload = {
-      case_id: cid, outcome_type: selectedOutcome,
-      outcome_date: document.getElementById('oc-date').value || null, deadline_date: document.getElementById('oc-deadline').value || null,
-      agreement_content: document.getElementById('oc-content').value, penalty_per_day: parseInt(document.getElementById('oc-penalty').value) || null,
-      follow_up_status: document.getElementById('oc-followup').value || '해당없음'
-    };
-    await db.from('case_outcomes').insert(outcomePayload);
+  try {
+    let cid;
 
+    if (editingCaseId) {
+      // ── 기존 사건 수정 ──────────────────────────────────
+      cid = editingCaseId;
+      const { error: uErr } = await db.from('cases').update(casePayload).eq('id', cid);
+      if (uErr) throw uErr;
+
+      // 진행 과정: 기존 행은 UPDATE, 신규는 INSERT, 삭제분은 DELETE (created_by 보존)
+      for (const e of eventItems) {
+        const row = { event_type: e.event_type, event_date: e.event_date, description: e.description, status: e.status || '완료' };
+        if (e.id) {
+          const { error } = await db.from('case_events').update(row).eq('id', e.id);
+          if (error) throw error;
+        } else {
+          const { error } = await db.from('case_events').insert({ ...row, case_id: cid });
+          if (error) throw error;
+        }
+      }
+      if (deletedEventIds.length) {
+        const { error } = await db.from('case_events').delete().in('id', deletedEventIds);
+        if (error) throw error;
+      }
+
+      // 사건번호: 전량 교체
+      await db.from('case_numbers').delete().eq('case_id', cid);
+      const nums = buildNums(cid);
+      if (nums.length) {
+        const { error } = await db.from('case_numbers').insert(nums);
+        if (error) throw error;
+      }
+
+      // 결과: 있으면 UPDATE, 없으면 INSERT
+      const { data: exist } = await db.from('case_outcomes').select('id').eq('case_id', cid).maybeSingle();
+      if (exist) {
+        const { error } = await db.from('case_outcomes').update(outcomeFields).eq('case_id', cid);
+        if (error) throw error;
+      } else {
+        const { error } = await db.from('case_outcomes').insert({ case_id: cid, ...outcomeFields });
+        if (error) throw error;
+      }
+
+    } else {
+      // ── 신규 사건 생성 ──────────────────────────────────
+      const { data: cData, error: cErr } = await db.from('cases').insert(casePayload).select().single();
+      if (cErr) throw cErr;
+      cid = cData.id;
+
+      if (eventItems.length > 0) {
+        const rows = eventItems.map(e => ({ case_id: cid, event_type: e.event_type, event_date: e.event_date, description: e.description, status: e.status || '완료' }));
+        const { error } = await db.from('case_events').insert(rows);
+        if (error) throw error;
+      }
+
+      const nums = buildNums(cid);
+      if (nums.length) {
+        const { error } = await db.from('case_numbers').insert(nums);
+        if (error) throw error;
+      }
+
+      const { error: oErr } = await db.from('case_outcomes').insert({ case_id: cid, ...outcomeFields });
+      if (oErr) throw oErr;
+    }
+
+    // 신규로 첨부한 파일만 업로드 (기존 첨부는 유지)
     for (const file of selectedFiles) {
       const storagePath = `${cid}/${Date.now()}_${safeName(file.name)}`;
       const { error: upErr } = await db.storage.from('case_documents').upload(storagePath, file);
       if (!upErr) await db.from('case_documents').insert({ case_id: cid, file_name: file.name, file_path: storagePath, file_size: file.size });
     }
 
-    showToast('✅ 모든 사건 데이터와 파일이 안전하게 동기화되었습니다.');
+    showToast(editingCaseId ? '✅ 사건 수정 내용이 저장되었습니다.' : '✅ 모든 사건 데이터와 파일이 안전하게 동기화되었습니다.');
+    const savedId = cid;
     await loadCases();
     resetForm();
-    changeMenu('list');
+    await showDetail(savedId);
 
   } catch (err) {
     showToast('저장 트랜잭션 오류: ' + err.message);
@@ -1022,6 +1308,8 @@ function resetForm() {
   selectedFiles = [];
   eventItems = [];
   editingEventIdx = null;
+  editingCaseId = null;
+  deletedEventIds = [];
   caseNums = [{ court: '2026서울조정', numHan: '', numKbs: '' }];
   selectedOutcome = '진행 중';
 
@@ -1047,6 +1335,7 @@ function resetForm() {
   renderFileList();
   renderCaseNums();
   renderEventList();
+  applyEditBanner('');
   goStep(1);
 }
 function togglePanel(id) { const el = document.getElementById(id); el.style.display = el.style.display === 'none' ? 'block' : 'none'; }
