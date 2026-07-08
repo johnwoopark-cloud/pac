@@ -46,6 +46,7 @@
   .case-table th { background: #f8f8f6; font-size: 12px; font-weight: 500; color: #888; padding: 12px 14px; text-align: left; border-bottom: 1px solid #e8e8e8; }
   .case-table td { padding: 14px; font-size: 14px; border-bottom: 1px solid #f0f0f0; vertical-align: middle; }
   .case-table tr:hover td { background: #fafaf8; cursor: pointer; }
+  .hearing-sub { font-size: 11px; color: #aaa; margin-left: 4px; }
 
   /* 배지 */
   .badge { display: inline-block; padding: 3px 10px; border-radius: 99px; font-size: 12px; font-weight: 500; margin-right: 2px; }
@@ -67,7 +68,7 @@
   .field input, .field select, .field textarea { padding: 10px 11px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; width: 100%; font-family: inherit; }
   .field textarea { resize: vertical; min-height: 80px; }
 
-  /* 청구 유형: 4칸 균등 정렬 (위아래로 갈라지지 않도록) */
+  /* 청구 유형: 글자폭에 맞춘 박스, 두 글자 가로 배치 */
   .checkbox-group { display: flex; gap: 16px; padding: 8px 4px; flex-wrap: wrap; }
   .checkbox-group label { display: flex; align-items: center; gap: 6px; font-size: 14px; color: #1a1a1a; cursor: pointer; }
   .checkbox-group.claim { display: flex; flex-wrap: wrap; gap: 10px; padding: 4px 0; }
@@ -84,6 +85,12 @@
   .file-item { display: flex; gap: 10px; align-items: center; padding: 8px 12px; border: 1px solid #eee; border-radius: 8px; font-size: 13px; background: #fff; }
   .file-item span { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .file-item.err { border-color: #f0c0c0; background: #FCEBEB; }
+
+  /* 첨부 서류 목록: 파일명이 끝나는 지점에서 50px 오른쪽에 버튼 배치 */
+  .file-list.attach .file-item { justify-content: flex-start; }
+  .file-list.attach .file-item span { flex: 0 1 auto; max-width: 60%; }
+  .file-list.attach .file-item .btn { margin-left: 50px; flex-shrink: 0; }
+
   .ai-loading-overlay { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.95); border-radius: 10px; align-items: center; justify-content: center; flex-direction: column; gap: 12px; color: #185FA5; font-weight: bold; z-index: 10; }
 
   .step-nav { display: flex; margin-bottom: 24px; border: 1px solid #e0e0e0; border-radius: 10px; overflow: hidden; }
@@ -94,7 +101,7 @@
   .step-content { display: none; }
   .step-content.active { display: block; }
 
-  /* 보안 문서 뷰어(모달) — 어느 화면에서든 뜨도록 */
+  /* 문서 뷰어(모달) */
   .pdf-modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 500; align-items: center; justify-content: center; padding: 24px; }
   .pdf-modal.open { display: flex; }
   .pdf-modal-box { background: #fff; border-radius: 12px; width: 940px; max-width: 100%; max-height: 92vh; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 10px 40px rgba(0,0,0,0.3); }
@@ -109,6 +116,7 @@
   .btn-danger { color: #A32D2D; border-color: #f0c0c0; }
   .btn-sm { padding: 5px 12px; font-size: 12px; }
   .icon-btn { width: 32px; height: 32px; border-radius: 50%; border: 1px solid #ddd; background: #fff; cursor: pointer; font-size: 14px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .icon-btn.editing { border-color: #185FA5; background: #E6F1FB; }
 
   #toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: #1a1a1a; color: #fff; padding: 12px 24px; border-radius: 99px; font-size: 14px; display: none; z-index: 999; max-width: 90%; text-align: center; }
   .spinner { display: inline-block; width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.3); border-top-color: #fff; border-radius: 50%; animation: spin 0.6s linear infinite; }
@@ -131,6 +139,7 @@
 
   .event-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; }
   .event-item { display: flex; gap: 12px; align-items: center; padding: 12px 14px; border: 1px solid #eee; border-radius: 8px; background: #fafaf8; }
+  .event-item.editing { border-color: #185FA5; background: #E6F1FB; }
   .event-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
   .dot-대응통지 { background: #378ADD; }
   .dot-답변서_제출 { background: #1D9E75; }
@@ -196,10 +205,10 @@
         <table class="case-table">
           <thead>
             <tr>
-              <th>발송일</th><th>신청인</th><th>청구 유형</th><th>중재부</th><th>KBS 담당자</th><th>상태</th>
+              <th>발송일</th><th>신청인</th><th>청구 유형</th><th>중재부</th><th>중재기일</th><th>KBS 담당자</th><th>상태</th>
             </tr>
           </thead>
-          <tbody id="case-tbody"><tr><td colspan="6" class="empty-state">로딩 중...</td></tr></tbody>
+          <tbody id="case-tbody"><tr><td colspan="7" class="empty-state">로딩 중...</td></tr></tbody>
         </table>
       </div>
 
@@ -215,9 +224,9 @@
         </div>
         <table class="case-table">
           <thead>
-            <tr><th>발송일</th><th>신청인</th><th>청구 유형</th><th>중재부</th><th>KBS 담당자</th><th>상태</th></tr>
+            <tr><th>발송일</th><th>신청인</th><th>청구 유형</th><th>중재부</th><th>중재기일</th><th>KBS 담당자</th><th>상태</th></tr>
           </thead>
-          <tbody id="search-tbody"><tr><td colspan="6" class="empty-state">검색어를 입력해 주세요.</td></tr></tbody>
+          <tbody id="search-tbody"><tr><td colspan="7" class="empty-state">검색어를 입력해 주세요.</td></tr></tbody>
         </table>
       </div>
 
@@ -306,12 +315,13 @@
         <div class="step-content" id="sc3">
           <div class="form-panel">
             <h3>대응 과정 진행 현황 확인</h3>
-            <p style="font-size: 13px; color: #888; margin-bottom: 12px;">AI가 추출한 내역이 아래 타임라인과 상세 목록에 표시됩니다. 필요시 수동으로 추가/수정하세요.</p>
+            <p style="font-size: 13px; color: #888; margin-bottom: 12px;">AI가 추출한 내역이 아래 타임라인과 상세 목록에 표시됩니다. 항목의 ✎ 버튼으로 수정, ✕ 버튼으로 삭제할 수 있습니다.</p>
             <div id="timeline-ui" class="timeline"></div>
             <div id="event-list-ui" class="event-list"></div>
-            <button class="btn btn-sm" onclick="togglePanel('event-form-panel')">+ 과정 이력 입력란 열기</button>
+            <button class="btn btn-sm" onclick="openEventForm()">+ 과정 이력 입력란 열기</button>
           </div>
           <div class="form-panel" id="event-form-panel" style="display:none; background:#fafaf8;">
+            <h3 id="event-form-title">새 진행 과정 추가</h3>
             <div class="field-grid col2">
               <div class="field"><label>과정 단계</label>
                 <select id="ev-type"><option>대응통지</option><option>답변서 제출</option><option>조정기일</option><option>후속조치</option><option>소송전환</option></select>
@@ -319,7 +329,10 @@
               <div class="field"><label>일자</label><input type="date" id="ev-date"></div>
             </div>
             <div class="field" style="margin-top:14px"><label>상세 메모</label><textarea id="ev-desc"></textarea></div>
-            <button class="btn btn-sm btn-primary" onclick="addEventItem()" style="margin-top:12px;">리스트에 추가</button>
+            <div style="display:flex; gap:8px; margin-top:12px;">
+              <button class="btn btn-sm btn-primary" id="ev-submit-btn" onclick="submitEventItem()">리스트에 추가</button>
+              <button class="btn btn-sm" id="ev-cancel-btn" onclick="cancelEventEdit()" style="display:none;">수정 취소</button>
+            </div>
           </div>
         </div>
 
@@ -334,13 +347,18 @@
             </div>
           </div>
           <div class="form-panel" id="outcome-detail-panel" style="display:none; border-top:3px solid #185FA5;">
-            <h3>조정 성립 확정 조항 검토</h3>
+            <h3>조정 합의 내용 검토</h3>
             <div class="field-grid col2">
               <div class="field"><label>결과 확정일 <span class="required">*</span></label><input type="date" id="oc-date"></div>
               <div class="field"><label>이행 기한 <span class="required">*</span></label><input type="date" id="oc-deadline"></div>
             </div>
             <div class="field" style="margin-top:14px"><label>합의 내용 요약 <span class="required">*</span></label><textarea id="oc-content"></textarea></div>
-            <div class="field" style="margin-top:14px"><label>지체 위약금 (원/일) <span class="required">*</span></label><input type="number" id="oc-penalty" placeholder="예: 500000"></div>
+            <div class="field-grid col2" style="margin-top:14px">
+              <div class="field"><label>지체 위약금 (원/일) <span class="required">*</span></label><input type="number" id="oc-penalty" placeholder="예: 500000"></div>
+              <div class="field"><label>후속조치 상태</label>
+                <select id="oc-followup"><option>해당없음</option><option>진행 예정</option><option>진행 중</option><option>이행 완료</option><option>미이행</option></select>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -366,11 +384,11 @@
   </div>
 </div>
 
-<!-- 보안 문서 뷰어 모달 -->
+<!-- 문서 뷰어 모달 -->
 <div id="pdf-modal" class="pdf-modal">
   <div class="pdf-modal-box">
     <div class="pdf-modal-head">
-      <h3 id="main-pdf-title">보안 문서 미리보기</h3>
+      <h3 id="main-pdf-title">문서 보기</h3>
       <button class="btn btn-sm" onclick="closeMainPdf()">닫기 ✕</button>
     </div>
     <iframe id="main-pdf-iframe"></iframe>
@@ -446,17 +464,46 @@ window.addEventListener('DOMContentLoaded', async () => {
   }
 });
 
-// 데이터 목록
+// 데이터 목록 (+ 중재기일: case_events의 '조정기일' 이벤트에서 산출)
 let cases = [];
+let hearingMap = {}; // case_id -> { first: 'YYYY-MM-DD', count: n }
+
 async function loadCases() {
   const { data, error } = await db.from('cases').select('*').order('broadcast_date', { ascending: false });
-  if (!error) { cases = data || []; renderCaseList(); }
+  if (error) return;
+  cases = data || [];
+
+  hearingMap = {};
+  const ids = cases.map(c => c.id);
+  if (ids.length) {
+    const { data: evs } = await db.from('case_events')
+      .select('case_id,event_type,event_date')
+      .in('case_id', ids)
+      .eq('event_type', '조정기일');
+    (evs || []).forEach(e => {
+      if (!e.event_date) return;
+      const cur = hearingMap[e.case_id];
+      if (!cur) hearingMap[e.case_id] = { first: e.event_date, count: 1 };
+      else {
+        cur.count++;
+        if (String(e.event_date) < String(cur.first)) cur.first = e.event_date;
+      }
+    });
+  }
+  renderCaseList();
+}
+
+function hearingCell(caseId) {
+  const h = hearingMap[caseId];
+  if (!h) return '-';
+  const extra = h.count > 1 ? `<span class="hearing-sub">외 ${h.count - 1}건</span>` : '';
+  return `${esc(h.first)}${extra}`;
 }
 
 function renderCaseList() {
   const tbody = document.getElementById('case-tbody');
   document.getElementById('case-count').textContent = `총 ${cases.length}건`;
-  if (cases.length === 0) { tbody.innerHTML = '<tr><td colspan="6" class="empty-state">내역이 비어 있습니다.</td></tr>'; return; }
+  if (cases.length === 0) { tbody.innerHTML = '<tr><td colspan="7" class="empty-state">내역이 비어 있습니다.</td></tr>'; return; }
   tbody.innerHTML = cases.map(c => {
     const claims = Array.isArray(c.claim_type) ? c.claim_type : [];
     const status = c.status || '진행 중';
@@ -466,6 +513,7 @@ function renderCaseList() {
       <td style="font-weight:bold">${esc(c.applicant_name) || '-'}</td>
       <td>${claims.map(t => `<span class="badge badge-claim">${esc(t)}</span>`).join('') || '-'}</td>
       <td>${esc(c.arbitration_org) || '-'}중재부</td>
+      <td>${hearingCell(c.id)}</td>
       <td>${esc(c.kbs_attorney) || '-'}</td>
       <td><span class="badge badge-${statusKey(status)}">${esc(status)}</span></td>
     </tr>`;
@@ -519,7 +567,17 @@ async function handleFileSelect(files) {
       formData.append('file', file);
 
       const { data: res, error: funcErr } = await db.functions.invoke('smooth-api', { body: formData });
-      if (funcErr) throw funcErr;
+      if (funcErr) {
+        let detail = funcErr.message || 'Edge Function 오류';
+        try {
+          if (funcErr.context && typeof funcErr.context.text === 'function') {
+            const raw = await funcErr.context.text();
+            try { const j = JSON.parse(raw); if (j && j.error) detail = j.error; }
+            catch (_) { if (raw) detail = raw; }
+          }
+        } catch (_) { /* 본문 읽기 실패 시 원래 메시지 사용 */ }
+        throw new Error(detail);
+      }
       if (res && res.error) throw new Error(res.error);
       if (!res) throw new Error('분석 결과가 비어 있습니다.');
 
@@ -579,7 +637,7 @@ async function handleFileSelect(files) {
   if (failed.length === 0) {
     showToast('✨ 분석이 완료되었습니다. 2단계부터 사람이 직접 눈으로 확인 후 확정해 주세요.');
   } else if (failed.length < files.length) {
-    showToast(`⚠️ 일부 파일 분석 실패 (${failed.length}건). 실패 파일은 목록에서 붉게 표시됩니다. 나머지는 폼에 반영되었습니다.`);
+    showToast(`⚠️ 일부 파일 분석 실패 (${failed.length}건). 실패 파일은 목록에서 붉게 표시됩니다.`);
   } else {
     showToast('❌ 모든 파일 분석에 실패했습니다. 파일 형식/용량 또는 서버 설정을 확인해 주세요.');
   }
@@ -588,10 +646,11 @@ async function handleFileSelect(files) {
 }
 
 function renderFileList(failed) {
-  const failedNames = (failed || []).map(f => f.name);
+  const failMap = {};
+  (failed || []).forEach(f => { failMap[f.name] = f.msg || '분석 실패'; });
   document.getElementById('file-list-ui').innerHTML = selectedFiles.map((f, i) => {
-    const isErr = failedNames.includes(f.name);
-    return `<div class="file-item${isErr ? ' err' : ''}">${isErr ? '⚠️' : '📄'} <span>${esc(f.name)}${isErr ? ' — 분석 실패' : ''}</span> <button class="icon-btn" onclick="selectedFiles.splice(${i},1);renderFileList();">✕</button></div>`;
+    const err = failMap[f.name];
+    return `<div class="file-item${err ? ' err' : ''}">${err ? '⚠️' : '📄'} <span title="${err ? esc(err) : ''}">${esc(f.name)}${err ? ' — ' + esc(err) : ''}</span> <button class="icon-btn" onclick="selectedFiles.splice(${i},1);renderFileList();">✕</button></div>`;
   }).join('');
 }
 
@@ -610,7 +669,7 @@ async function runIntegratedSearch() {
   if (status) result = result.filter(c => c.status === status);
 
   if (result.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="6" class="empty-state">조건에 일치하는 기록이 없습니다.</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="7" class="empty-state">조건에 일치하는 기록이 없습니다.</td></tr>';
     return;
   }
   tbody.innerHTML = result.map(c => {
@@ -622,6 +681,7 @@ async function runIntegratedSearch() {
       <td><strong>${esc(c.applicant_name) || '-'}</strong></td>
       <td>${esc(claims.join(', ')) || '-'}</td>
       <td>${esc(c.arbitration_org) || '-'}</td>
+      <td>${hearingCell(c.id)}</td>
       <td>${esc(c.kbs_attorney) || '-'}</td>
       <td><span class="badge badge-${statusKey(stat)}">${esc(stat)}</span></td>
     </tr>`;
@@ -642,16 +702,17 @@ async function showDetail(id) {
   const claims = Array.isArray(c.claim_type) ? c.claim_type : [];
   const status = c.status || '진행 중';
   detailDocs = docs || [];
+  const evs = events || [];
 
   let html = `
     <div class="detail-section">
       <div class="detail-section-header"><h3>사건 상세 내역 [신청인: ${esc(c.applicant_name)}]</h3><button class="btn btn-sm" onclick="switchTab('list')">목록으로</button></div>
-      <div class="detail-row"><span class="detail-label">기준 발송일</span><span class="detail-val">${esc(c.broadcast_date) || '-'}</span></div>
+      <div class="detail-row"><span class="detail-label">최초 문서 발송일</span><span class="detail-val">${esc(c.broadcast_date) || '-'}</span></div>
       <div class="detail-row"><span class="detail-label">중재부 관할</span><span class="detail-val">${esc(c.arbitration_org) || '-'}중재부</span></div>
       <div class="detail-row"><span class="detail-label">청구 목록</span><span class="detail-val">${esc(claims.join(', ')) || '-'}</span></div>
       <div class="detail-row"><span class="detail-label">기사 타이틀</span><span class="detail-val">${esc(c.content_title) || '-'}</span></div>
       <div class="detail-row"><span class="detail-label">KBS 담당자</span><span class="detail-val">${esc(c.kbs_attorney) || '-'}</span></div>
-      <div class="detail-row"><span class="detail-label">진행 등급</span><span class="badge badge-${statusKey(status)}">${esc(status)}</span></div>
+      <div class="detail-row"><span class="detail-label">진행 상황</span><span class="badge badge-${statusKey(status)}">${esc(status)}</span></div>
     </div>`;
 
   if (out && out.outcome_type === '조정성립') {
@@ -659,19 +720,37 @@ async function showDetail(id) {
     const penTxt = isNaN(pen) ? '-' : `일당 ${pen.toLocaleString()}원 환산`;
     html += `
     <div class="detail-section" style="border-left:4px solid #3B6D11;">
-      <h3>조정 성립 계약 조건</h3>
+      <h3>조정 합의 내용</h3>
       <div class="detail-row"><span class="detail-label">이행 완료 기한</span><span class="detail-val" style="color:#3B6D11;">${esc(out.deadline_date) || '-'}</span></div>
       <div class="detail-row"><span class="detail-label">지체 위약금 조항</span><span class="detail-val">${penTxt}</span></div>
       <div class="detail-row"><span class="detail-label">합의 내용 요약</span><span class="detail-val" style="white-space:pre-wrap;">${esc(out.agreement_content) || '-'}</span></div>
     </div>`;
   }
 
+  // 후속조치 (조정 합의 내용 바로 아래)
+  const followEvents = evs.filter(e => e.event_type === '후속조치')
+    .sort((a, b) => String(a.event_date || '').localeCompare(String(b.event_date || '')));
+  html += `
+    <div class="detail-section" style="border-left:4px solid #534AB7;">
+      <h3>후속조치</h3>
+      <div class="detail-row"><span class="detail-label">후속조치 상태</span><span class="detail-val">${esc((out && out.follow_up_status) || '해당없음')}</span></div>`;
+  if (followEvents.length) {
+    html += followEvents.map(e => `
+      <div class="detail-row">
+        <span class="detail-label">${esc(e.event_date) || '-'}</span>
+        <span class="detail-val" style="white-space:pre-wrap; font-weight:400;">${esc(e.description) || '상세 메모 없음'}</span>
+      </div>`).join('');
+  } else {
+    html += `<div class="detail-row"><span class="detail-label">등록 내역</span><span class="detail-val" style="color:#bbb; font-weight:400;">등록된 후속조치 내역이 없습니다.</span></div>`;
+  }
+  html += `</div>`;
+
   html += `
     <div class="detail-section">
-      <h3>기밀 첨부 서류 스트리밍</h3>
-      <div class="file-list">`;
+      <h3>첨부 서류</h3>
+      <div class="file-list attach">`;
   if (detailDocs.length > 0) {
-    html += detailDocs.map((d, i) => `<div class="file-item">🔒 <span>${esc(d.file_name)}</span> <button class="btn btn-sm btn-primary" onclick="openDocByIndex(${i})">보안 뷰어로 확인</button></div>`).join('');
+    html += detailDocs.map((d, i) => `<div class="file-item">🔒 <span>${esc(d.file_name)}</span> <button class="btn btn-sm btn-primary" onclick="openDocByIndex(${i})">문서 보기</button></div>`).join('');
   } else { html += '<p style="color:#ccc;">첨부문서 없음</p>'; }
   html += `</div></div>`;
 
@@ -688,7 +767,7 @@ async function openDocByIndex(i) {
 async function openPdfInbound(path, name) {
   const { data, error } = await db.storage.from('case_documents').createSignedUrl(path, 1800);
   if (!error) {
-    document.getElementById('main-pdf-title').textContent = `보안 문서 확인: ${name}`;
+    document.getElementById('main-pdf-title').textContent = `문서 보기: ${name}`;
     document.getElementById('main-pdf-iframe').src = data.signedUrl;
     document.getElementById('pdf-modal').classList.add('open');
   } else {
@@ -725,11 +804,68 @@ function selectOutcome(type, el) {
   document.getElementById('outcome-detail-panel').style.display = (type === '조정성립') ? 'block' : 'none';
 }
 
-function addEventItem() {
-  eventItems.push({ event_type: document.getElementById('ev-type').value, event_date: document.getElementById('ev-date').value, description: document.getElementById('ev-desc').value, status: '완료' });
-  document.getElementById('ev-desc').value = '';
+// ── 진행 과정: 추가 / 수정 / 삭제 ─────────────────────────
+let editingEventIdx = null;
+
+function openEventForm() {
+  const panel = document.getElementById('event-form-panel');
+  if (panel.style.display === 'none') panel.style.display = 'block';
+  else if (editingEventIdx === null) panel.style.display = 'none';
+}
+
+function startEditEvent(i) {
+  const e = eventItems[i];
+  if (!e) return;
+  editingEventIdx = i;
+  document.getElementById('ev-type').value = e.event_type || '대응통지';
+  document.getElementById('ev-date').value = e.event_date || '';
+  document.getElementById('ev-desc').value = e.description || '';
+  document.getElementById('event-form-title').textContent = '진행 과정 수정';
+  document.getElementById('ev-submit-btn').textContent = '수정 내용 저장';
+  document.getElementById('ev-cancel-btn').style.display = 'inline-block';
+  const panel = document.getElementById('event-form-panel');
+  panel.style.display = 'block';
+  panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
   renderEventList();
 }
+
+function cancelEventEdit() {
+  editingEventIdx = null;
+  document.getElementById('ev-date').value = '';
+  document.getElementById('ev-desc').value = '';
+  document.getElementById('event-form-title').textContent = '새 진행 과정 추가';
+  document.getElementById('ev-submit-btn').textContent = '리스트에 추가';
+  document.getElementById('ev-cancel-btn').style.display = 'none';
+  renderEventList();
+}
+
+function submitEventItem() {
+  const payload = {
+    event_type: document.getElementById('ev-type').value,
+    event_date: document.getElementById('ev-date').value,
+    description: document.getElementById('ev-desc').value,
+    status: '완료'
+  };
+  if (!payload.event_date) { showToast('일자를 입력해 주세요.'); return; }
+
+  if (editingEventIdx !== null && eventItems[editingEventIdx]) {
+    eventItems[editingEventIdx] = { ...eventItems[editingEventIdx], ...payload };
+    showToast('진행 과정이 수정되었습니다.');
+    cancelEventEdit();
+  } else {
+    eventItems.push(payload);
+    document.getElementById('ev-desc').value = '';
+    renderEventList();
+  }
+}
+
+function deleteEventItem(i) {
+  if (editingEventIdx === i) { editingEventIdx = null; cancelEventEdit(); }
+  else if (editingEventIdx !== null && editingEventIdx > i) editingEventIdx--;
+  eventItems.splice(i, 1);
+  renderEventList();
+}
+
 function renderTimeline() {
   const el = document.getElementById('timeline-ui');
   if (!el) return;
@@ -749,13 +885,14 @@ function renderEventList() {
   const withIdx = eventItems.map((e, i) => ({ e, i }));
   withIdx.sort((a, b) => String(a.e.event_date || '').localeCompare(String(b.e.event_date || '')));
   list.innerHTML = withIdx.map(({ e, i }) => `
-    <div class="event-item">
+    <div class="event-item${editingEventIdx === i ? ' editing' : ''}">
       <div class="event-dot dot-${statusKey(e.event_type)}"></div>
       <div class="event-label">
         <strong>[${esc(e.event_type)}]</strong> <span style="color:#aaa;">${esc(e.event_date) || '-'}</span>
         <div style="color:#555; font-size:13px; margin-top:3px; white-space:pre-wrap;">${esc(e.description) || '상세 메모 없음'}</div>
       </div>
-      <button class="icon-btn" onclick="eventItems.splice(${i},1); renderEventList();">✕</button>
+      <button class="icon-btn${editingEventIdx === i ? ' editing' : ''}" title="수정" onclick="startEditEvent(${i})">✎</button>
+      <button class="icon-btn" title="삭제" onclick="deleteEventItem(${i})">✕</button>
     </div>`).join('');
   renderTimeline();
 }
@@ -783,11 +920,11 @@ function renderConfirm() {
   const rows = [
     ['신청인 명의', document.getElementById('f-applicant').value],
     ['피신청인', document.getElementById('f-respondent').value],
-    ['기본 발송일', document.getElementById('f-broadcast-date').value],
+    ['최초 문서 발송일', document.getElementById('f-broadcast-date').value],
     ['중재부 관할', document.getElementById('f-arb-org').value],
     ['청구 구성유형', cTypes.join(', ')],
     ['KBS 법무 담당', document.getElementById('f-attorney').value],
-    ['결과 상태 유형', selectedOutcome]
+    ['진행 상황', selectedOutcome]
   ];
   document.getElementById('confirm-table').innerHTML = rows.map(([k, v]) => `<tr><td>${esc(k)}</td><td><strong>${esc(v) || '-'}</strong></td></tr>`).join('');
 }
@@ -811,14 +948,13 @@ async function saveMasterTransaction() {
     return;
   }
 
-  // 4단계 조정성립 필수값 검증
   if (selectedOutcome === '조정성립') {
     const ocDate = document.getElementById('oc-date').value;
     const ocDeadline = document.getElementById('oc-deadline').value;
     const ocContent = document.getElementById('oc-content').value.trim();
     const ocPenalty = document.getElementById('oc-penalty').value;
     if (!ocDate || !ocDeadline || !ocContent || ocPenalty === '') {
-      showToast('조정성립 항목 필수값이 누락되었습니다. (4단계: 확정일 / 이행기한 / 합의내용 / 위약금)');
+      showToast('조정 합의 내용 필수값이 누락되었습니다. (4단계: 확정일 / 이행기한 / 합의내용 / 위약금)');
       goStep(4);
       return;
     }
@@ -857,7 +993,7 @@ async function saveMasterTransaction() {
       case_id: cid, outcome_type: selectedOutcome,
       outcome_date: document.getElementById('oc-date').value || null, deadline_date: document.getElementById('oc-deadline').value || null,
       agreement_content: document.getElementById('oc-content').value, penalty_per_day: parseInt(document.getElementById('oc-penalty').value) || null,
-      follow_up_status: '해당없음'
+      follow_up_status: document.getElementById('oc-followup').value || '해당없음'
     };
     await db.from('case_outcomes').insert(outcomePayload);
 
@@ -885,22 +1021,26 @@ function resetForm() {
   curStep = 1;
   selectedFiles = [];
   eventItems = [];
+  editingEventIdx = null;
   caseNums = [{ court: '2026서울조정', numHan: '', numKbs: '' }];
   selectedOutcome = '진행 중';
 
-  ['f-broadcast-date', 'f-application-date', 'f-applicant', 'f-program', 'f-title', 'f-reporter', 'f-reporter-org', 'f-attorney', 'f-content-date', 'oc-date', 'oc-deadline', 'oc-content', 'oc-penalty'].forEach(id => {
+  ['f-broadcast-date', 'f-application-date', 'f-applicant', 'f-program', 'f-title', 'f-reporter', 'f-reporter-org', 'f-attorney', 'f-content-date', 'oc-date', 'oc-deadline', 'oc-content', 'oc-penalty', 'ev-date', 'ev-desc'].forEach(id => {
     const el = document.getElementById(id); if (el) el.value = '';
   });
   document.getElementById('f-arb-org').value = '';
   document.getElementById('f-respondent').value = '케이비에스미디어';
+  document.getElementById('oc-followup').value = '해당없음';
 
   document.querySelectorAll('input[name="claim-type-cb"]').forEach(cb => cb.checked = false);
 
-  // 종결 유형 선택 및 상세 패널 초기화
   document.querySelectorAll('#sc4 .outcome-card').forEach(c => c.classList.remove('selected'));
   document.getElementById('outcome-detail-panel').style.display = 'none';
+  document.getElementById('event-form-panel').style.display = 'none';
+  document.getElementById('event-form-title').textContent = '새 진행 과정 추가';
+  document.getElementById('ev-submit-btn').textContent = '리스트에 추가';
+  document.getElementById('ev-cancel-btn').style.display = 'none';
 
-  // 하단 잔여 정보(최종 확인표 / 상세영역) 정리
   document.getElementById('confirm-table').innerHTML = '';
   document.getElementById('detail-content').innerHTML = '';
 
