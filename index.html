@@ -404,7 +404,7 @@
 <script>
 const SUPABASE_URL = 'https://uaiwjhoavxmhmrxlwqku.supabase.co';
 
-// ⚠️ 중요: 아래 값 대신 Supabase 대시보드 API 설정화면에서 복사한 최신 'anon' 'public' 키를 새로 꼭 붙여넣으세요!
+// ⚠️ Supabase 'anon' 'public' 키
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVhaXdqaG9hdnhtaG1yeGx3cWt1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODMzMTk0NjQsImV4cCI6MjA5ODg5NTQ2NH0.84VBEmXJmdwHX-NwNYznqxP1EcGENsnyKg4COCPNr6s';
 
 const { createClient } = supabase;
@@ -1123,7 +1123,7 @@ function renderEventList() {
 
 function addCaseNumRow() { caseNums.push({ court: '2026서울조정', numHan: '', numKbs: '' }); renderCaseNums(); }
 function renderCaseNums() {
-  const courtOpts = ['2026서울조정', '2026부산조정', '2026대구조정', '2026광주조정', '2026대전조정', '2026경기조정', '2026강원조정', '2026충북조정', '2026전북조정', '2026경남조정', '2026제주조정'];
+  const courtOpts = ['2026서울조정', '2026부산조정', '2026대구조정', '2026광주조정', '2026대전조정', '2026경기조정', '2026강원조정', '2026충북조정', '2026전북조정', '2026경남조정', '2026제주조정''2025서울조정', '2025부산조정', '2025대구조정', '2025광주조정', '2025대전조정', '2025경기조정', '2025강원조정', '2025충북조정', '2025전북조정', '2025경남조정', '2025제주조정'];
   document.getElementById('case-num-rows').innerHTML = caseNums.map((cn, i) => `
     <div class="case-num-row">
       <div class="field" style="flex:1.3"><label>중재부/사건연도</label>
