@@ -796,7 +796,6 @@ function renderFollowupBody() {
   // 2) 내역 목록
   if (detailFollowEvents.length) {
     h += detailFollowEvents.map(e => {
-      const mine = e.created_by && e.created_by === currentUserId;
       const editable = true;
       if (editingFollowId === e.id) {
         return `
@@ -811,7 +810,7 @@ function renderFollowupBody() {
       }
       return `
       <div class="detail-row" style="align-items:flex-start;">
-        <span class="detail-label">${esc(e.event_date) || '-'}${mine ? '<br><span style="font-size:11px;color:#534AB7;">내가 작성</span>' : ''}</span>
+        <span class="detail-label">${esc(e.event_date) || '-'}</span>
         <span class="detail-val" style="white-space:pre-wrap; font-weight:400; flex:1;">${esc(e.description) || '상세 메모 없음'}</span>
         ${editable ? `<button class="icon-btn" title="수정" onclick="editingFollowId=${e.id};renderFollowupBody();">✎</button>` : ''}
         <button class="icon-btn" title="삭제" onclick="deleteFollowUp(${e.id})">✕</button>
@@ -851,7 +850,6 @@ async function addFollowUp() {
   if (!d || !desc) { showToast('일자와 내용을 모두 입력해 주세요.'); return; }
 
   const payload = { case_id: detailCaseId, event_type: '후속조치', event_date: d, description: desc, status: '완료' };
-  if (currentUserId) payload.created_by = currentUserId; // reader 정책 통과에 필요
 
   const { error } = await db.from('case_events').insert(payload);
   if (error) { showToast('등록 실패: ' + error.message); return; }
@@ -927,7 +925,7 @@ async function startEditCase(id) {
   // 3단계: 진행 과정 (id 를 보존해야 후속조치 작성자 정보가 유지됨)
   eventItems = (evs || []).map(e => ({
     id: e.id, event_type: e.event_type, event_date: e.event_date,
-    description: e.description, status: e.status || '완료', created_by: e.created_by
+    description: e.description, status: e.status || '완료'
   }));
   renderEventList();
 
@@ -1225,7 +1223,7 @@ async function saveMasterTransaction() {
       const { error: uErr } = await db.from('cases').update(casePayload).eq('id', cid);
       if (uErr) throw uErr;
 
-      // 진행 과정: 기존 행은 UPDATE, 신규는 INSERT, 삭제분은 DELETE (created_by 보존)
+      // 진행 과정: 기존 행은 UPDATE, 신규는 INSERT, 삭제분은 DELETE
       for (const e of eventItems) {
         const row = { event_type: e.event_type, event_date: e.event_date, description: e.description, status: e.status || '완료' };
         if (e.id) {
