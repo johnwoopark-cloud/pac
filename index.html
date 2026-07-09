@@ -418,6 +418,16 @@ function esc(s) {
 }
 function statusKey(s) { return String(s || '').replace(/ /g, '_'); }
 
+// 텍스트를 이스케이프한 뒤 URL만 안전하게 하이퍼링크로 변환
+function linkify(s) {
+  const safe = esc(s == null ? '' : s);          // 먼저 이스케이프 (XSS 방지)
+  return safe.replace(/(https?:\/\/[^\s<]+)/g, (url) => {
+    const clean = url.replace(/[.,;:)\]]+$/, ''); // 끝의 문장부호 제외
+    const tail = url.slice(clean.length);
+    return `<a href="${clean}" target="_blank" rel="noopener noreferrer" style="color:#185FA5; word-break:break-all;">${clean}</a>${tail}`;
+  });
+}
+
 // ── 세션 (현재는 계정별 권한 구분 없이 전원 편집 가능) ────
 let currentUserId = null;
 
@@ -811,7 +821,7 @@ function renderFollowupBody() {
       return `
       <div class="detail-row" style="align-items:flex-start;">
         <span class="detail-label">${esc(e.event_date) || '-'}</span>
-        <span class="detail-val" style="white-space:pre-wrap; font-weight:400; flex:1;">${esc(e.description) || '상세 메모 없음'}</span>
+        <span class="detail-val" style="white-space:pre-wrap; font-weight:400; flex:1;">${linkify(e.description) || '상세 메모 없음'}</span>
         ${editable ? `<button class="icon-btn" title="수정" onclick="editingFollowId=${e.id};renderFollowupBody();">✎</button>` : ''}
         <button class="icon-btn" title="삭제" onclick="deleteFollowUp(${e.id})">✕</button>
       </div>`;
@@ -1103,7 +1113,7 @@ function renderEventList() {
       <div class="event-dot dot-${statusKey(e.event_type)}"></div>
       <div class="event-label">
         <strong>[${esc(e.event_type)}]</strong> <span style="color:#aaa;">${esc(e.event_date) || '-'}</span>
-        <div style="color:#555; font-size:13px; margin-top:3px; white-space:pre-wrap;">${esc(e.description) || '상세 메모 없음'}</div>
+        <div style="color:#555; font-size:13px; margin-top:3px; white-space:pre-wrap;">${linkify(e.description) || '상세 메모 없음'}</div>
       </div>
       <button class="icon-btn${editingEventIdx === i ? ' editing' : ''}" title="수정" onclick="startEditEvent(${i})">✎</button>
       <button class="icon-btn" title="삭제" onclick="deleteEventItem(${i})">✕</button>
