@@ -165,6 +165,13 @@
   .detail-row:last-child { border-bottom: none; }
   .detail-label { color: #888; width: 30%; flex-shrink: 0; }
   .detail-val { font-weight: 500; }
+ /* 페이지네이션 */
+.pagination { display: flex; justify-content: center; align-items: center; gap: 6px; margin-bottom: 24px; }
+.page-btn { min-width: 34px; height: 34px; padding: 0 8px; border: 1px solid #e0e0e0; background: #fff; border-radius: 8px; font-size: 13px; color: #555; cursor: pointer; font-family: inherit; }
+.page-btn:hover:not(:disabled) { background: #f5f5f0; }
+.page-btn.active { background: #1a1a1a; color: #fff; border-color: #1a1a1a; font-weight: 500; }
+.page-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.page-info { font-size: 12px; color: #aaa; margin-left: 8px; }
 </style>
 </head>
 <body>
@@ -198,19 +205,20 @@
 
     <div class="content-area">
       <div id="p-list" class="page-panel active">
-        <div class="list-header">
-          <h2>사건 기본 대시보드</h2>
-          <span id="case-count" style="font-size:13px;color:#aaa"></span>
-        </div>
-        <table class="case-table">
-          <thead>
-            <tr>
-              <th>발송일</th><th>신청인</th><th>청구 유형</th><th>중재부</th><th>중재기일</th><th>KBS 담당자</th><th>상태</th>
-            </tr>
-          </thead>
-          <tbody id="case-tbody"><tr><td colspan="7" class="empty-state">로딩 중...</td></tr></tbody>
-        </table>
-      </div>
+  <div class="list-header">
+    <h2>사건 기본 대시보드</h2>
+    <span id="case-count" style="font-size:13px;color:#aaa"></span>
+  </div>
+  <table class="case-table">
+    <thead>
+      <tr>
+        <th>발송일</th><th>신청인</th><th>청구 유형</th><th>중재부</th><th>중재기일</th><th>KBS 담당자</th><th>상태</th><th style="width:70px;">삭제</th>
+      </tr>
+    </thead>
+    <tbody id="case-tbody"><tr><td colspan="8" class="empty-state">로딩 중...</td></tr></tbody>
+  </table>
+  <div id="pagination" class="pagination"></div>
+</div>
 
       <div id="p-search" class="page-panel">
         <h2>사건 통합 상세 검색</h2>
@@ -511,21 +519,29 @@ async function loadCases() {
       }
     });
   }
-  renderCaseList();
-}
 
-function hearingCell(caseId) {
-  const h = hearingMap[caseId];
-  if (!h) return '-';
-  const extra = h.count > 1 ? `<span class="hearing-sub">외 ${h.count - 1}건</span>` : '';
-  return `${esc(h.first)}${extra}`;
-}
+// 페이지네이션 설정
+const PAGE_SIZE = 10;
+let currentPage = 1;
 
 function renderCaseList() {
   const tbody = document.getElementById('case-tbody');
   document.getElementById('case-count').textContent = `총 ${cases.length}건`;
-  if (cases.length === 0) { tbody.innerHTML = '<tr><td colspan="7" class="empty-state">내역이 비어 있습니다.</td></tr>'; return; }
-  tbody.innerHTML = cases.map(c => {
+
+  if (cases.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="8" class="empty-state">내역이 비어 있습니다.</td></tr>';
+    document.getElementById('pagination').innerHTML = '';
+    return;
+  }
+
+  const totalPages = Math.max(1, Math.ceil(cases.length / PAGE_SIZE));
+  if (currentPage > totalPages) currentPage = totalPages;
+  if (currentPage < 1) currentPage = 1;
+
+  const start = (currentPage - 1) * PAGE_SIZE;
+  const pageItems = cases.slice(start, start + PAGE_SIZE);
+
+  tbody.innerHTML = pageItems.map(c => {
     const claims = Array.isArray(c.claim_type) ? c.claim_type : [];
     const status = c.status || '진행 중';
     return `
@@ -537,9 +553,63 @@ function renderCaseList() {
       <td>${hearingCell(c.id)}</td>
       <td>${esc(c.kbs_attorney) || '-'}</td>
       <td><span class="badge badge-${statusKey(status)}">${esc(status)}</span></td>
+      <td onclick="event.stopPropagation()">
+        <button class="btn btn-sm btn-danger" onclick="confirmDeleteCase(${c.id})">삭제</button>
+      </td>
     </tr>`;
   }).join('');
+
+  renderPagination(totalPages);
 }
+
+function renderPagination(totalPages) {
+  const el = document.getElementById('pagination');
+  if (!el) return;
+  if (totalPages <= 1) { el.innerHTML = ''; return; }
+
+  // 페이지 번호는 최대 10개씩 묶어서 표시
+  const BLOCK = 10;
+  const blockStart = Math.floor((currentPage - 1) / BLOCK) * BLOCK + 1;
+  const blockEnd = Math.min(blockStart + BLOCK - 1, totalPages);
+
+  let h = `<button class="page-btn" ${currentPage === 1 ? 'disabled' : ''} onclick="gotoPage(${currentPage - 1})">‹</button>`;
+  for (let i = blockStart; i <= blockEnd; i++) {
+    h += `<button class="page-btn${i === currentPage ? ' active' : ''}" onclick="gotoPage(${i})">${i}</button>`;
+  }
+  h += `<button class="page-btn" ${currentPage === totalPages ? 'disabled' : ''} onclick="gotoPage(${currentPage + 1})">›</button>`;
+  h += `<span class="page-info">${currentPage} / ${totalPages} 페이지</span>`;
+
+  el.innerHTML = h;
+}
+async function confirmDeleteCase(id) {
+  if (!confirm('데이터가 삭제 됩니다. 계속 하시겠습니까?')) return;
+
+  try {
+    // 하위 데이터부터 정리 (FK CASCADE 설정이 없어도 안전하게 동작)
+    const { data: docs } = await db.from('case_documents').select('file_path').eq('case_id', id);
+    if (docs && docs.length) {
+      await db.storage.from('case_documents').remove(docs.map(d => d.file_path));
+      await db.from('case_documents').delete().eq('case_id', id);
+    }
+    await db.from('case_events').delete().eq('case_id', id);
+    await db.from('case_numbers').delete().eq('case_id', id);
+    await db.from('case_outcomes').delete().eq('case_id', id);
+
+    const { error } = await db.from('cases').delete().eq('id', id);
+    if (error) throw error;
+
+    if (editingCaseId === id) resetForm();   // 수정 중이던 사건이면 폼 초기화
+    showToast('✅ 사건 데이터가 삭제되었습니다.');
+    await loadCases();                        // 목록 갱신 (현재 페이지 유지, 초과 시 자동 보정)
+  } catch (err) {
+    showToast('삭제 실패: ' + err.message);
+  }
+}
+function gotoPage(n) {
+  currentPage = n;
+  renderCaseList();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+} 
 
 // 파일 불러오기 및 AI 순차 추출
 let selectedFiles = [], eventItems = [], selectedOutcome = '진행 중', caseNums = [{ court: '2026서울조정', numHan: '', numKbs: '' }];
