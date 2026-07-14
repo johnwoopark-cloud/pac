@@ -42,11 +42,20 @@
   .search-container { background: #fff; border: 1px solid #e8e8e8; border-radius: 12px; padding: 20px; margin-bottom: 16px; display: flex; gap: 12px; }
   .search-container input, .search-container select { padding: 10px 14px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; }
 
-  .case-table { width: 100%; border-collapse: collapse; background: #fff; border-radius: 12px; overflow: hidden; border: 1px solid #e8e8e8; margin-bottom: 24px; }
+  .case-table { width: 100%; border-collapse: collapse; background: #fff; border-radius: 12px; overflow: hidden; border: 1px solid #e8e8e8; margin-bottom: 16px; }
   .case-table th { background: #f8f8f6; font-size: 12px; font-weight: 500; color: #888; padding: 12px 14px; text-align: left; border-bottom: 1px solid #e8e8e8; }
   .case-table td { padding: 14px; font-size: 14px; border-bottom: 1px solid #f0f0f0; vertical-align: middle; }
   .case-table tr:hover td { background: #fafaf8; cursor: pointer; }
   .hearing-sub { font-size: 11px; color: #aaa; margin-left: 4px; }
+  .col-del { width: 80px; }
+
+  /* 페이지네이션 */
+  .pagination { display: flex; justify-content: center; align-items: center; gap: 6px; margin-bottom: 24px; flex-wrap: wrap; }
+  .page-btn { min-width: 34px; height: 34px; padding: 0 8px; border: 1px solid #e0e0e0; background: #fff; border-radius: 8px; font-size: 13px; color: #555; cursor: pointer; font-family: inherit; }
+  .page-btn:hover:not(:disabled) { background: #f5f5f0; color: #1a1a1a; }
+  .page-btn.active { background: #1a1a1a; color: #fff; border-color: #1a1a1a; font-weight: 500; }
+  .page-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+  .page-info { font-size: 12px; color: #aaa; margin-left: 8px; }
 
   /* 배지 */
   .badge { display: inline-block; padding: 3px 10px; border-radius: 99px; font-size: 12px; font-weight: 500; margin-right: 2px; }
@@ -114,6 +123,7 @@
   .btn-primary { background: #1a1a1a; color: #fff; border-color: #1a1a1a; }
   .btn-success { background: #1D9E75; color: #fff; border-color: #1D9E75; }
   .btn-danger { color: #A32D2D; border-color: #f0c0c0; }
+  .btn-danger:hover:not(:disabled) { background: #FCEBEB; }
   .btn-sm { padding: 5px 12px; font-size: 12px; }
   .icon-btn { width: 32px; height: 32px; border-radius: 50%; border: 1px solid #ddd; background: #fff; cursor: pointer; font-size: 14px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
   .icon-btn.editing { border-color: #185FA5; background: #E6F1FB; }
@@ -165,13 +175,6 @@
   .detail-row:last-child { border-bottom: none; }
   .detail-label { color: #888; width: 30%; flex-shrink: 0; }
   .detail-val { font-weight: 500; }
- /* 페이지네이션 */
-.pagination { display: flex; justify-content: center; align-items: center; gap: 6px; margin-bottom: 24px; }
-.page-btn { min-width: 34px; height: 34px; padding: 0 8px; border: 1px solid #e0e0e0; background: #fff; border-radius: 8px; font-size: 13px; color: #555; cursor: pointer; font-family: inherit; }
-.page-btn:hover:not(:disabled) { background: #f5f5f0; }
-.page-btn.active { background: #1a1a1a; color: #fff; border-color: #1a1a1a; font-weight: 500; }
-.page-btn:disabled { opacity: 0.4; cursor: not-allowed; }
-.page-info { font-size: 12px; color: #aaa; margin-left: 8px; }
 </style>
 </head>
 <body>
@@ -205,20 +208,20 @@
 
     <div class="content-area">
       <div id="p-list" class="page-panel active">
-  <div class="list-header">
-    <h2>사건 기본 대시보드</h2>
-    <span id="case-count" style="font-size:13px;color:#aaa"></span>
-  </div>
-  <table class="case-table">
-    <thead>
-      <tr>
-        <th>발송일</th><th>신청인</th><th>청구 유형</th><th>중재부</th><th>중재기일</th><th>KBS 담당자</th><th>상태</th><th style="width:70px;">삭제</th>
-      </tr>
-    </thead>
-    <tbody id="case-tbody"><tr><td colspan="8" class="empty-state">로딩 중...</td></tr></tbody>
-  </table>
-  <div id="pagination" class="pagination"></div>
-</div>
+        <div class="list-header">
+          <h2>사건 기본 대시보드</h2>
+          <span id="case-count" style="font-size:13px;color:#aaa"></span>
+        </div>
+        <table class="case-table">
+          <thead>
+            <tr>
+              <th>발송일</th><th>신청인</th><th>청구 유형</th><th>중재부</th><th>중재기일</th><th>KBS 담당자</th><th>상태</th><th class="col-del">삭제</th>
+            </tr>
+          </thead>
+          <tbody id="case-tbody"><tr><td colspan="8" class="empty-state">로딩 중...</td></tr></tbody>
+        </table>
+        <div id="pagination" class="pagination"></div>
+      </div>
 
       <div id="p-search" class="page-panel">
         <h2>사건 통합 상세 검색</h2>
@@ -232,9 +235,9 @@
         </div>
         <table class="case-table">
           <thead>
-            <tr><th>발송일</th><th>신청인</th><th>청구 유형</th><th>중재부</th><th>중재기일</th><th>KBS 담당자</th><th>상태</th></tr>
+            <tr><th>발송일</th><th>신청인</th><th>청구 유형</th><th>중재부</th><th>중재기일</th><th>KBS 담당자</th><th>상태</th><th class="col-del">삭제</th></tr>
           </thead>
-          <tbody id="search-tbody"><tr><td colspan="7" class="empty-state">검색어를 입력해 주세요.</td></tr></tbody>
+          <tbody id="search-tbody"><tr><td colspan="8" class="empty-state">검색어를 입력해 주세요.</td></tr></tbody>
         </table>
       </div>
 
@@ -497,6 +500,10 @@ window.addEventListener('DOMContentLoaded', async () => {
 let cases = [];
 let hearingMap = {}; // case_id -> { first: 'YYYY-MM-DD', count: n }
 
+// 페이지네이션 설정: 한 화면에 10건
+const PAGE_SIZE = 10;
+let currentPage = 1;
+
 async function loadCases() {
   const { data, error } = await db.from('cases').select('*').order('broadcast_date', { ascending: false });
   if (error) return;
@@ -519,10 +526,15 @@ async function loadCases() {
       }
     });
   }
+  renderCaseList();
+}
 
-// 페이지네이션 설정
-const PAGE_SIZE = 10;
-let currentPage = 1;
+function hearingCell(caseId) {
+  const h = hearingMap[caseId];
+  if (!h) return '-';
+  const extra = h.count > 1 ? `<span class="hearing-sub">외 ${h.count - 1}건</span>` : '';
+  return `${esc(h.first)}${extra}`;
+}
 
 function renderCaseList() {
   const tbody = document.getElementById('case-tbody');
@@ -562,12 +574,12 @@ function renderCaseList() {
   renderPagination(totalPages);
 }
 
+// 페이지 번호 렌더링 (번호는 10개 단위 블록으로 표시)
 function renderPagination(totalPages) {
   const el = document.getElementById('pagination');
   if (!el) return;
   if (totalPages <= 1) { el.innerHTML = ''; return; }
 
-  // 페이지 번호는 최대 10개씩 묶어서 표시
   const BLOCK = 10;
   const blockStart = Math.floor((currentPage - 1) / BLOCK) * BLOCK + 1;
   const blockEnd = Math.min(blockStart + BLOCK - 1, totalPages);
@@ -581,6 +593,14 @@ function renderPagination(totalPages) {
 
   el.innerHTML = h;
 }
+
+function gotoPage(n) {
+  currentPage = n;
+  renderCaseList();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ── 사건 삭제 ─────────────────────────────────────────────
 async function confirmDeleteCase(id) {
   if (!confirm('데이터가 삭제 됩니다. 계속 하시겠습니까?')) return;
 
@@ -598,18 +618,16 @@ async function confirmDeleteCase(id) {
     const { error } = await db.from('cases').delete().eq('id', id);
     if (error) throw error;
 
-    if (editingCaseId === id) resetForm();   // 수정 중이던 사건이면 폼 초기화
+    if (editingCaseId === id) resetForm();          // 수정 중이던 사건이면 폼 초기화
+    if (detailCaseId === id) switchTab('list');     // 상세 화면에 있었다면 목록으로
+
     showToast('✅ 사건 데이터가 삭제되었습니다.');
-    await loadCases();                        // 목록 갱신 (현재 페이지 유지, 초과 시 자동 보정)
+    await loadCases();                              // 목록 갱신 (페이지 초과 시 자동 보정)
+    if (document.getElementById('search-tbody').children.length) runIntegratedSearch();
   } catch (err) {
     showToast('삭제 실패: ' + err.message);
   }
 }
-function gotoPage(n) {
-  currentPage = n;
-  renderCaseList();
-  window.scrollTo({ top: 0, behavior: 'smooth' });
-} 
 
 // 파일 불러오기 및 AI 순차 추출
 let selectedFiles = [], eventItems = [], selectedOutcome = '진행 중', caseNums = [{ court: '2026서울조정', numHan: '', numKbs: '' }];
@@ -760,7 +778,7 @@ async function runIntegratedSearch() {
   if (status) result = result.filter(c => c.status === status);
 
   if (result.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="7" class="empty-state">조건에 일치하는 기록이 없습니다.</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="8" class="empty-state">조건에 일치하는 기록이 없습니다.</td></tr>';
     return;
   }
   tbody.innerHTML = result.map(c => {
@@ -775,6 +793,9 @@ async function runIntegratedSearch() {
       <td>${hearingCell(c.id)}</td>
       <td>${esc(c.kbs_attorney) || '-'}</td>
       <td><span class="badge badge-${statusKey(stat)}">${esc(stat)}</span></td>
+      <td onclick="event.stopPropagation()">
+        <button class="btn btn-sm btn-danger" onclick="confirmDeleteCase(${c.id})">삭제</button>
+      </td>
     </tr>`;
   }).join('');
 }
@@ -801,6 +822,7 @@ async function showDetail(id) {
         <h3>사건 상세 내역 [신청인: ${esc(c.applicant_name)}]</h3>
         <div style="display:flex; gap:8px;">
           <button class="btn btn-sm btn-primary" onclick="startEditCase(${c.id})">✎ 사건 수정</button>
+          <button class="btn btn-sm btn-danger" onclick="confirmDeleteCase(${c.id})">🗑 사건 삭제</button>
           <button class="btn btn-sm" onclick="switchTab('list')">목록으로</button>
         </div>
       </div>
