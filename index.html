@@ -834,6 +834,34 @@ async function showDetail(id) {
       <div class="detail-row"><span class="detail-label">진행 상황</span><span class="badge badge-${statusKey(status)}">${esc(status)}</span></div>
     </div>`;
 
+  // ── 사건 진행 타임라인 (상세 내역 바로 아래) ──────────────
+  const timelineEvents = [...evs].sort((a, b) => String(a.event_date || '').localeCompare(String(b.event_date || '')));
+  html += `
+    <div class="detail-section">
+      <div class="detail-section-header">
+        <h3>사건 진행 타임라인</h3>
+      </div>`;
+  if (timelineEvents.length) {
+    const nodes = timelineEvents.map(e => `
+      <div class="timeline-node">
+        <div class="tl-dot dot-${statusKey(e.event_type)}"></div>
+        <div class="tl-label">${esc(e.event_type)}</div>
+        <div class="tl-date">${esc(e.event_date) || '-'}</div>
+      </div>`).join('');
+    html += `<div class="timeline"><div class="timeline-track"><div class="timeline-line"></div>${nodes}</div></div>`;
+    html += `<div class="event-list">` + timelineEvents.map(e => `
+      <div class="event-item">
+        <div class="event-dot dot-${statusKey(e.event_type)}"></div>
+        <div class="event-label">
+          <strong>[${esc(e.event_type)}]</strong> <span style="color:#aaa;">${esc(e.event_date) || '-'}</span>
+          <div style="color:#555; font-size:13px; margin-top:3px; white-space:pre-wrap;">${linkify(e.description) || '상세 메모 없음'}</div>
+        </div>
+      </div>`).join('') + `</div>`;
+  } else {
+    html += `<div class="timeline-empty">등록된 진행 과정이 없습니다.</div>`;
+  }
+  html += `</div>`;
+
   if (out && out.outcome_type === '조정성립') {
     const pen = parseInt(out.penalty_per_day);
     const penTxt = isNaN(pen) ? '-' : `일당 ${pen.toLocaleString()}원 환산`;
