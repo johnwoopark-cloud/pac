@@ -94,6 +94,17 @@
   .step-item.done { color: #3B6D11; background: #f4faea; }
   .step-content { display: none; }
   .step-content.active { display: block; }
+  /* 검토 단계 좌우 분할 (왼쪽 40% 입력 폼 / 오른쪽 60% 원본 문서 미리보기) */
+  .review-layout { display: flex; gap: 20px; align-items: flex-start; }
+  .review-left { flex: 0 0 40%; max-width: 40%; min-width: 0; }
+  .review-right { flex: 0 0 60%; max-width: 60%; min-width: 0; position: sticky; top: 0; }
+  .pdf-preview-panel { background: #fff; border: 1px solid #e8e8e8; border-radius: 12px; padding: 16px; height: calc(100vh - 180px); min-height: 400px; display: flex; flex-direction: column; }
+  .pdf-preview-panel h3 { font-size: 13px; font-weight: 500; color: #888; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 12px; flex-shrink: 0; }
+  .pdf-preview-select { margin-bottom: 10px; flex-shrink: 0; }
+  .pdf-preview-select select { width: 100%; padding: 9px 11px; border: 1px solid #ddd; border-radius: 8px; font-size: 13px; font-family: inherit; }
+  .pdf-preview-body { flex: 1; min-height: 0; }
+  .pdf-preview-body iframe { width: 100%; height: 100%; border: none; border-radius: 8px; }
+  .pdf-preview-body .empty-state { display: flex; align-items: center; justify-content: center; height: 100%; padding: 20px; }
   /* 문서 뷰어(모달) */
   .pdf-modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 500; align-items: center; justify-content: center; padding: 24px; }
   .pdf-modal.open { display: flex; }
@@ -240,6 +251,8 @@
             <div class="file-list" id="file-list-ui"></div>
           </div>
         </div>
+        <div class="review-layout" id="review-wrap" style="display:none;">
+        <div class="review-left">
         <div class="step-content" id="sc2">
           <div class="form-panel">
             <h3>사건 기본 개요 확인</h3>
@@ -346,6 +359,17 @@
             <table class="confirm-table" id="confirm-table"></table>
           </div>
         </div>
+        </div>
+        <div class="review-right">
+          <div class="pdf-preview-panel">
+            <h3>업로드 원본 문서</h3>
+            <div class="pdf-preview-select">
+              <select id="pdf-preview-select" onchange="previewFileIdx=parseInt(this.value,10);renderPdfPreviewPanel();"></select>
+            </div>
+            <div class="pdf-preview-body" id="pdf-preview-body"></div>
+          </div>
+        </div>
+        </div>
         <div class="form-bottom">
           <button class="btn" id="btn-prev" onclick="prevStep()">← 이전 단계</button>
           <span id="step-ind">1 / 5</span>
@@ -434,6 +458,7 @@ async function logout() {
 }
 window.addEventListener('DOMContentLoaded', async () => {
   renderCaseNums();
+  renderPdfPreviewPanel();
   const { data: { session } } = await db.auth.getSession();
   if (session) {
     document.getElementById('login-screen').style.display = 'none';
@@ -652,6 +677,7 @@ async function handleFileSelect(files) {
     idx++;
   }
   renderFileList(failed);
+  renderPdfPreviewPanel();
   overlay.style.display = 'none';
   if (failed.length === 0) {
     showToast('✨ 분석이 완료되었습니다. 2단계부터 사람이 직접 눈으로 확인 후 확정해 주세요.');
@@ -667,8 +693,32 @@ function renderFileList(failed) {
   (failed || []).forEach(f => { failMap[f.name] = f.msg || '분석 실패'; });
   document.getElementById('file-list-ui').innerHTML = selectedFiles.map((f, i) => {
     const err = failMap[f.name];
-    return `<div class="file-item${err ? ' err' : ''}">${err ? '⚠️' : '📄'} <span title="${err ? esc(err) : ''}">${esc(f.name)}${err ? ' — ' + esc(err) : ''}</span> <button class="icon-btn" onclick="selectedFiles.splice(${i},1);renderFileList();">✕</button></div>`;
+    return `<div class="file-item${err ? ' err' : ''}">${err ? '⚠️' : '📄'} <span title="${err ? esc(err) : ''}">${esc(f.name)}${err ? ' — ' + esc(err) : ''}</span> <button class="icon-btn" onclick="selectedFiles.splice(${i},1);renderFileList();renderPdfPreviewPanel();">✕</button></div>`;
   }).join('');
+}
+// 업로드 원본 문서 미리보기 (검토 단계 오른쪽 패널, 드롭다운으로 문서 선택)
+let previewFileIdx = 0, previewBlobUrl = null;
+function renderPdfPreviewPanel() {
+  const selectEl = document.getElementById('pdf-preview-select');
+  const bodyEl = document.getElementById('pdf-preview-body');
+  if (!selectEl || !bodyEl) return;
+  if (previewBlobUrl) { URL.revokeObjectURL(previewBlobUrl); previewBlobUrl = null; }
+  if (!selectedFiles.length) {
+    selectEl.innerHTML = '';
+    selectEl.style.display = 'none';
+    bodyEl.innerHTML = '<div class="empty-state">업로드된 문서가 없습니다.<br>1단계에서 문서를 불러오면 여기에 원본이 표시됩니다.</div>';
+    return;
+  }
+  if (previewFileIdx >= selectedFiles.length) previewFileIdx = 0;
+  selectEl.style.display = '';
+  selectEl.innerHTML = selectedFiles.map((f, i) => `<option value="${i}"${i === previewFileIdx ? ' selected' : ''}>${esc(f.name)}</option>`).join('');
+  const file = selectedFiles[previewFileIdx];
+  previewBlobUrl = URL.createObjectURL(file);
+  if (/\.pdf$/i.test(file.name)) {
+    bodyEl.innerHTML = `<iframe src="${previewBlobUrl}" title="${esc(file.name)}"></iframe>`;
+  } else {
+    bodyEl.innerHTML = `<div class="empty-state">DOCX 파일은 브라우저에서 바로 미리보기가 되지 않습니다.<br><a href="${previewBlobUrl}" download="${esc(file.name)}" style="color:#185FA5;">${esc(file.name)} 다운로드</a></div>`;
+  }
 }
 // 상세 검색 컴포넌트
 async function runIntegratedSearch() {
@@ -1013,6 +1063,7 @@ function goStep(n) {
   document.getElementById('btn-next').textContent = curStep === 5
     ? (editingCaseId ? '💾 수정 내용 저장' : '💾 내용 저장')
     : '다음 단계 →';
+  document.getElementById('review-wrap').style.display = curStep === 1 ? 'none' : 'flex';
   if (curStep === 5) renderConfirm();
 }
 function nextStep() { if (curStep < 5) goStep(curStep + 1); else saveMasterTransaction(); }
@@ -1306,6 +1357,7 @@ function resetForm() {
   document.getElementById('confirm-table').innerHTML = '';
   document.getElementById('detail-content').innerHTML = '';
   renderFileList();
+  renderPdfPreviewPanel();
   renderCaseNums();
   renderEventList();
   applyEditBanner('');
