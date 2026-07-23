@@ -8,7 +8,6 @@
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f5f0; color: #1a1a1a; font-size: 15px; }
-
   /* 로그인 스크린 */
   #login-screen { display: flex; align-items: center; justify-content: center; min-height: 100vh; }
   .login-box { background: #fff; border: 1px solid #e0e0e0; border-radius: 12px; padding: 2.5rem; width: 380px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
@@ -16,39 +15,32 @@
   .login-box p { font-size: 13px; color: #888; margin-bottom: 24px; text-align: center; }
   .login-box input { width: 100%; padding: 11px 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; margin-bottom: 12px; }
   .login-box button { width: 100%; padding: 12px; background: #1a1a1a; color: #fff; border: none; border-radius: 8px; font-size: 14px; cursor: pointer; font-weight: 500; }
-
   /* 메인 레이아웃 (사이드바 구조) */
   #app { display: none; }
   .container { display: flex; min-height: calc(100vh - 56px); }
-
   .topbar { background: #fff; border-bottom: 1px solid #e8e8e8; padding: 0 24px; height: 56px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
   .topbar h1 { font-size: 16px; font-weight: 500; }
   .topbar-right { display: flex; gap: 12px; align-items: center; }
   .user-info { font-size: 13px; color: #666; background: #f0f0f0; padding: 4px 10px; border-radius: 20px; }
-
   /* 왼쪽 고정 메뉴 구성 */
   .sidebar { width: 240px; background: #fff; border-right: 1px solid #e8e8e8; padding: 20px 16px; display: flex; flex-direction: column; gap: 8px; flex-shrink: 0; }
   .menu-btn { width: 100%; padding: 12px 16px; border: none; background: transparent; text-align: left; border-radius: 8px; font-size: 14px; color: #555; cursor: pointer; font-weight: 500; transition: all 0.2s; }
   .menu-btn:hover { background: #f5f5f0; color: #1a1a1a; }
   .menu-btn.active { background: #1a1a1a; color: #fff; }
-
   /* 메인 콘텐츠 영역 */
   .content-area { flex: 1; padding: 24px; overflow-y: auto; }
   .page-panel { display: none; }
   .page-panel.active { display: block; }
-
   /* 컴포넌트 내부 스타일 */
   .list-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
   .search-container { background: #fff; border: 1px solid #e8e8e8; border-radius: 12px; padding: 20px; margin-bottom: 16px; display: flex; gap: 12px; }
   .search-container input, .search-container select { padding: 10px 14px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; }
-
   .case-table { width: 100%; border-collapse: collapse; background: #fff; border-radius: 12px; overflow: hidden; border: 1px solid #e8e8e8; margin-bottom: 16px; }
   .case-table th { background: #f8f8f6; font-size: 12px; font-weight: 500; color: #888; padding: 12px 14px; text-align: left; border-bottom: 1px solid #e8e8e8; }
   .case-table td { padding: 14px; font-size: 14px; border-bottom: 1px solid #f0f0f0; vertical-align: middle; }
   .case-table tr:hover td { background: #fafaf8; cursor: pointer; }
   .hearing-sub { font-size: 11px; color: #aaa; margin-left: 4px; }
   .col-del { width: 80px; }
-
   /* 페이지네이션 */
   .pagination { display: flex; justify-content: center; align-items: center; gap: 6px; margin-bottom: 24px; flex-wrap: wrap; }
   .page-btn { min-width: 34px; height: 34px; padding: 0 8px; border: 1px solid #e0e0e0; background: #fff; border-radius: 8px; font-size: 13px; color: #555; cursor: pointer; font-family: inherit; }
@@ -56,7 +48,6 @@
   .page-btn.active { background: #1a1a1a; color: #fff; border-color: #1a1a1a; font-weight: 500; }
   .page-btn:disabled { opacity: 0.4; cursor: not-allowed; }
   .page-info { font-size: 12px; color: #aaa; margin-left: 8px; }
-
   /* 배지 */
   .badge { display: inline-block; padding: 3px 10px; border-radius: 99px; font-size: 12px; font-weight: 500; margin-right: 2px; }
   .badge-claim { background: #f0f0f0; color: #444; border: 1px solid #ddd; }
@@ -65,7 +56,6 @@
   .badge-조정불성립 { background: #FCEBEB; color: #A32D2D; }
   .badge-취하 { background: #FAEEDA; color: #854F0B; }
   .empty-state { text-align: center; padding: 60px 20px; color: #aaa; font-size: 14px; }
-
   /* 폼 요소 */
   .form-panel { background: #fff; border: 1px solid #e8e8e8; border-radius: 12px; padding: 24px; margin-bottom: 16px; position: relative; }
   .form-panel h3 { font-size: 13px; font-weight: 500; color: #888; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 16px; }
@@ -76,7 +66,6 @@
   .field label { font-size: 12px; color: #888; font-weight: 500; }
   .field input, .field select, .field textarea { padding: 10px 11px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; width: 100%; font-family: inherit; }
   .field textarea { resize: vertical; min-height: 80px; }
-
   /* 청구 유형: 글자폭에 맞춘 박스, 두 글자 가로 배치 */
   .checkbox-group { display: flex; gap: 16px; padding: 8px 4px; flex-wrap: wrap; }
   .checkbox-group label { display: flex; align-items: center; gap: 6px; font-size: 14px; color: #1a1a1a; cursor: pointer; }
@@ -85,7 +74,6 @@
   .checkbox-group.claim label:hover { border-color: #185FA5; }
   .checkbox-group.claim label:has(input:checked) { border-color: #185FA5; background: #E6F1FB; color: #185FA5; font-weight: 500; }
   .required { color: #E24B4A; }
-
   /* 파일 불러오기 창 및 로딩 오버레이 */
   .upload-box { text-align: center; padding: 40px 20px; background: #fafaf8; border: 2px dashed #d5d5cf; border-radius: 10px; transition: all 0.15s; }
   .upload-box.drag { border-color: #185FA5; background: #E6F1FB; }
@@ -94,14 +82,11 @@
   .file-item { display: flex; gap: 10px; align-items: center; padding: 8px 12px; border: 1px solid #eee; border-radius: 8px; font-size: 13px; background: #fff; }
   .file-item span { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .file-item.err { border-color: #f0c0c0; background: #FCEBEB; }
-
   /* 첨부 서류 목록: 파일명이 끝나는 지점에서 50px 오른쪽에 버튼 배치 */
   .file-list.attach .file-item { justify-content: flex-start; }
   .file-list.attach .file-item span { flex: 0 1 auto; max-width: 60%; }
   .file-list.attach .file-item .btn { margin-left: 50px; flex-shrink: 0; }
-
   .ai-loading-overlay { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.95); border-radius: 10px; align-items: center; justify-content: center; flex-direction: column; gap: 12px; color: #185FA5; font-weight: bold; z-index: 10; }
-
   .step-nav { display: flex; margin-bottom: 24px; border: 1px solid #e0e0e0; border-radius: 10px; overflow: hidden; }
   .step-item { flex: 1; padding: 12px 8px; text-align: center; font-size: 13px; color: #aaa; background: #fafaf8; border-right: 1px solid #e0e0e0; cursor: pointer; }
   .step-item:last-child { border-right: none; }
@@ -109,7 +94,6 @@
   .step-item.done { color: #3B6D11; background: #f4faea; }
   .step-content { display: none; }
   .step-content.active { display: block; }
-
   /* 문서 뷰어(모달) */
   .pdf-modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 500; align-items: center; justify-content: center; padding: 24px; }
   .pdf-modal.open { display: flex; }
@@ -117,7 +101,6 @@
   .pdf-modal-head { display: flex; justify-content: space-between; align-items: center; padding: 14px 18px; border-bottom: 1px solid #eee; }
   .pdf-modal-head h3 { font-size: 14px; font-weight: 500; }
   .pdf-modal-box iframe { width: 100%; height: 72vh; border: none; }
-
   .btn { padding: 9px 18px; border-radius: 8px; font-size: 14px; cursor: pointer; border: 1px solid #ddd; background: #fff; color: #1a1a1a; font-family: inherit; }
   .btn:disabled { opacity: 0.55; cursor: not-allowed; }
   .btn-primary { background: #1a1a1a; color: #fff; border-color: #1a1a1a; }
@@ -127,16 +110,13 @@
   .btn-sm { padding: 5px 12px; font-size: 12px; }
   .icon-btn { width: 32px; height: 32px; border-radius: 50%; border: 1px solid #ddd; background: #fff; cursor: pointer; font-size: 14px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
   .icon-btn.editing { border-color: #185FA5; background: #E6F1FB; }
-
   #toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: #1a1a1a; color: #fff; padding: 12px 24px; border-radius: 99px; font-size: 14px; display: none; z-index: 999; max-width: 90%; text-align: center; }
   .spinner { display: inline-block; width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.3); border-top-color: #fff; border-radius: 50%; animation: spin 0.6s linear infinite; }
   @keyframes spin { to { transform: rotate(360deg); } }
-
   .confirm-table { width: 100%; border-collapse: collapse; }
   .confirm-table td { padding: 11px 0; font-size: 14px; border-bottom: 1px solid #f0f0f0; }
   .confirm-table td:first-child { color: #888; width: 35%; }
   .form-bottom { display: flex; justify-content: space-between; align-items: center; padding-top: 16px; margin-top: 8px; border-top: 1px solid #eee; }
-
   /* 가로 타임라인 */
   .timeline { overflow-x: auto; padding: 34px 6px 8px; margin-bottom: 18px; }
   .timeline-track { position: relative; display: flex; min-width: 100%; }
@@ -146,7 +126,6 @@
   .timeline-node .tl-label { font-size: 12px; font-weight: 600; }
   .timeline-node .tl-date { font-size: 11px; color: #999; margin-top: 2px; }
   .timeline-empty { color: #bbb; font-size: 13px; padding: 6px 2px; }
-
   .event-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; }
   .event-item { display: flex; gap: 12px; align-items: center; padding: 12px 14px; border: 1px solid #eee; border-radius: 8px; background: #fafaf8; }
   .event-item.editing { border-color: #185FA5; background: #E6F1FB; }
@@ -158,7 +137,6 @@
   .dot-소송전환 { background: #E24B4A; }
   .event-label { font-size: 14px; flex: 1; }
   .event-date { font-size: 12px; color: #aaa; }
-
   .outcome-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 16px; }
   .outcome-card { border: 1px solid #e0e0e0; border-radius: 10px; padding: 14px; cursor: pointer; text-align: center; background: #fff; }
   .outcome-card.selected { border: 2px solid #185FA5; background: #E6F1FB; }
@@ -166,7 +144,6 @@
   .case-num-row { display: flex; gap: 8px; align-items: flex-end; margin-bottom: 10px; }
   .case-num-row .field { gap: 4px; }
   .case-num-row .field label { font-size: 11px; }
-
   /* 상세 조회 뷰 */
   .detail-section { background: #fff; border: 1px solid #e8e8e8; border-radius: 12px; padding: 20px; margin-bottom: 14px; }
   .detail-section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; border-bottom: 1px solid #f5f5f5; padding-bottom: 8px; }
@@ -178,7 +155,6 @@
 </style>
 </head>
 <body>
-
 <div id="login-screen">
   <div class="login-box">
     <h1>⚖️ 언론중재 사건 관리 (PACMAN)</h1>
@@ -189,7 +165,6 @@
     <p id="login-err" style="color:#E24B4A;font-size:12px;margin-top:10px;display:none;">인증에 실패했습니다.</p>
   </div>
 </div>
-
 <div id="app">
   <div class="topbar">
     <h1>⚖️ 언론중재 사건 관리 시스템</h1>
@@ -198,14 +173,12 @@
       <button class="btn btn-sm" onclick="logout()">로그아웃</button>
     </div>
   </div>
-
   <div class="container">
     <div class="sidebar">
       <button class="menu-btn active" id="m-list" onclick="changeMenu('list')">■ 사건 목록</button>
       <button class="menu-btn" id="m-search" onclick="changeMenu('search')">■ 통합 검색</button>
       <button class="menu-btn" id="m-form" onclick="changeMenu('form')">■ 새 데이터 입력</button>
     </div>
-
     <div class="content-area">
       <div id="p-list" class="page-panel active">
         <div class="list-header">
@@ -222,7 +195,6 @@
         </table>
         <div id="pagination" class="pagination"></div>
       </div>
-
       <div id="p-search" class="page-panel">
         <h2>사건 통합 상세 검색</h2>
         <div class="search-container">
@@ -240,7 +212,6 @@
           <tbody id="search-tbody"><tr><td colspan="8" class="empty-state">검색어를 입력해 주세요.</td></tr></tbody>
         </table>
       </div>
-
       <div id="p-form" class="page-panel">
         <div id="edit-banner" style="display:none; background:#E6F1FB; border:1px solid #b7d4ee; color:#185FA5; padding:12px 16px; border-radius:10px; margin-bottom:16px; justify-content:space-between; align-items:center;">
           <span id="edit-banner-text" style="font-size:14px; font-weight:500;"></span>
@@ -253,27 +224,22 @@
           <div class="step-item" id="snav4" onclick="goStep(4)">4. 종결 유형 검토</div>
           <div class="step-item" id="snav5" onclick="goStep(5)">5. 최종 확인 및 저장</div>
         </div>
-
         <div class="step-content active" id="sc1">
           <div class="form-panel">
             <h3>사건 문서 파일 불러오기 (Gemini AI 분석)</h3>
             <div class="upload-box" id="drop-zone" ondragover="onDragOver(event)" ondragleave="onDragLeave(event)" ondrop="onDrop(event)">
               <div style="font-size:36px; margin-bottom:10px;">📂</div>
               <p style="margin-bottom: 16px; color: #666; font-size: 14px;">조정신청서, 결정문 등 관련 문서(PDF/DOCX)를 <strong>이 영역으로 끌어다 놓거나</strong> 아래 버튼으로 선택해 주세요.<br>여러 파일을 선택하면 AI가 순차적으로 내용을 추출하여 다음 단계 폼에 자동으로 기입합니다.</p>
-
               <input type="file" id="file-input" multiple accept=".pdf,.docx" onchange="handleFileSelect(this.files)" style="display:none;">
               <button class="btn btn-primary" onclick="document.getElementById('file-input').click()" style="padding: 12px 24px; font-size: 15px;">+ 파일 불러오기 창 열기</button>
             </div>
-
             <div class="ai-loading-overlay" id="ai-loading">
               <div class="spinner"></div>
               <div id="ai-status-text">AI 분석 준비 중...</div>
             </div>
-
             <div class="file-list" id="file-list-ui"></div>
           </div>
         </div>
-
         <div class="step-content" id="sc2">
           <div class="form-panel">
             <h3>사건 기본 개요 확인</h3>
@@ -326,7 +292,6 @@
             </div>
           </div>
         </div>
-
         <div class="step-content" id="sc3">
           <div class="form-panel">
             <h3>대응 과정 진행 현황 확인</h3>
@@ -350,7 +315,6 @@
             </div>
           </div>
         </div>
-
         <div class="step-content" id="sc4">
           <div class="form-panel">
             <h3>결과 유형 확인</h3>
@@ -376,29 +340,24 @@
             </div>
           </div>
         </div>
-
         <div class="step-content" id="sc5">
           <div class="form-panel">
             <h3>최종 데이터 확인 및 저장</h3>
             <table class="confirm-table" id="confirm-table"></table>
           </div>
         </div>
-
         <div class="form-bottom">
           <button class="btn" id="btn-prev" onclick="prevStep()">← 이전 단계</button>
           <span id="step-ind">1 / 5</span>
           <button class="btn btn-primary" id="btn-next" onclick="nextStep()">다음 단계 →</button>
         </div>
       </div>
-
       <div id="tab-detail" class="page-panel">
         <div id="detail-content"></div>
       </div>
-
     </div>
   </div>
 </div>
-
 <!-- 문서 뷰어 모달 -->
 <div id="pdf-modal" class="pdf-modal">
   <div class="pdf-modal-box">
@@ -409,18 +368,13 @@
     <iframe id="main-pdf-iframe"></iframe>
   </div>
 </div>
-
 <div id="toast"></div>
-
 <script>
 const SUPABASE_URL = 'https://uaiwjhoavxmhmrxlwqku.supabase.co';
-
 // ⚠️ Supabase 'anon' 'public' 키
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVhaXdqaG9hdnhtaG1yeGx3cWt1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODMzMTk0NjQsImV4cCI6MjA5ODg5NTQ2NH0.84VBEmXJmdwHX-NwNYznqxP1EcGENsnyKg4COCPNr6s';
-
 const { createClient } = supabase;
 const db = createClient(SUPABASE_URL, SUPABASE_KEY);
-
 // ── 공용 유틸 ─────────────────────────────────────────────
 function esc(s) {
   return String(s == null ? '' : s).replace(/[&<>"']/g, m => ({
@@ -428,7 +382,6 @@ function esc(s) {
   }[m]));
 }
 function statusKey(s) { return String(s || '').replace(/ /g, '_'); }
-
 // 텍스트를 이스케이프한 뒤 URL만 안전하게 하이퍼링크로 변환
 function linkify(s) {
   const safe = esc(s == null ? '' : s);          // 먼저 이스케이프 (XSS 방지)
@@ -438,16 +391,13 @@ function linkify(s) {
     return `<a href="${clean}" target="_blank" rel="noopener noreferrer" style="color:#185FA5; word-break:break-all;">${clean}</a>${tail}`;
   });
 }
-
 // ── 세션 (현재는 계정별 권한 구분 없이 전원 편집 가능) ────
 let currentUserId = null;
-
 async function initSession(user) {
   currentUserId = user.id;
   document.getElementById('current-user-ui').textContent = user.email;
   loadCases();
 }
-
 // 메뉴 라우팅
 function changeMenu(target) {
   document.querySelectorAll('.sidebar .menu-btn').forEach(b => b.classList.remove('active'));
@@ -458,7 +408,6 @@ function changeMenu(target) {
   if (pp) pp.classList.add('active');
   closeMainPdf();
 }
-
 function switchTab(name) {
   if (name === 'list' || name === 'form' || name === 'search') changeMenu(name);
   else if (name === 'detail') {
@@ -466,7 +415,6 @@ function switchTab(name) {
     document.getElementById('tab-detail').classList.add('active');
   }
 }
-
 // 로그인 제어
 async function doLogin() {
   const email = document.getElementById('email-input').value.trim();
@@ -480,12 +428,10 @@ async function doLogin() {
     await initSession(data.user);
   }
 }
-
 async function logout() {
   await db.auth.signOut();
   location.reload();
 }
-
 window.addEventListener('DOMContentLoaded', async () => {
   renderCaseNums();
   const { data: { session } } = await db.auth.getSession();
@@ -495,20 +441,16 @@ window.addEventListener('DOMContentLoaded', async () => {
     await initSession(session.user);
   }
 });
-
 // 데이터 목록 (+ 중재기일: case_events의 '조정기일' 이벤트에서 산출)
 let cases = [];
 let hearingMap = {}; // case_id -> { first: 'YYYY-MM-DD', count: n }
-
 // 페이지네이션 설정: 한 화면에 10건
 const PAGE_SIZE = 10;
 let currentPage = 1;
-
 async function loadCases() {
   const { data, error } = await db.from('cases').select('*').order('broadcast_date', { ascending: false });
   if (error) return;
   cases = data || [];
-
   hearingMap = {};
   const ids = cases.map(c => c.id);
   if (ids.length) {
@@ -528,31 +470,25 @@ async function loadCases() {
   }
   renderCaseList();
 }
-
 function hearingCell(caseId) {
   const h = hearingMap[caseId];
   if (!h) return '-';
   const extra = h.count > 1 ? `<span class="hearing-sub">외 ${h.count - 1}건</span>` : '';
   return `${esc(h.first)}${extra}`;
 }
-
 function renderCaseList() {
   const tbody = document.getElementById('case-tbody');
   document.getElementById('case-count').textContent = `총 ${cases.length}건`;
-
   if (cases.length === 0) {
     tbody.innerHTML = '<tr><td colspan="8" class="empty-state">내역이 비어 있습니다.</td></tr>';
     document.getElementById('pagination').innerHTML = '';
     return;
   }
-
   const totalPages = Math.max(1, Math.ceil(cases.length / PAGE_SIZE));
   if (currentPage > totalPages) currentPage = totalPages;
   if (currentPage < 1) currentPage = 1;
-
   const start = (currentPage - 1) * PAGE_SIZE;
   const pageItems = cases.slice(start, start + PAGE_SIZE);
-
   tbody.innerHTML = pageItems.map(c => {
     const claims = Array.isArray(c.claim_type) ? c.claim_type : [];
     const status = c.status || '진행 중';
@@ -570,40 +506,32 @@ function renderCaseList() {
       </td>
     </tr>`;
   }).join('');
-
   renderPagination(totalPages);
 }
-
 // 페이지 번호 렌더링 (번호는 10개 단위 블록으로 표시)
 function renderPagination(totalPages) {
   const el = document.getElementById('pagination');
   if (!el) return;
   if (totalPages <= 1) { el.innerHTML = ''; return; }
-
   const BLOCK = 10;
   const blockStart = Math.floor((currentPage - 1) / BLOCK) * BLOCK + 1;
   const blockEnd = Math.min(blockStart + BLOCK - 1, totalPages);
-
   let h = `<button class="page-btn" ${currentPage === 1 ? 'disabled' : ''} onclick="gotoPage(${currentPage - 1})">‹</button>`;
   for (let i = blockStart; i <= blockEnd; i++) {
     h += `<button class="page-btn${i === currentPage ? ' active' : ''}" onclick="gotoPage(${i})">${i}</button>`;
   }
   h += `<button class="page-btn" ${currentPage === totalPages ? 'disabled' : ''} onclick="gotoPage(${currentPage + 1})">›</button>`;
   h += `<span class="page-info">${currentPage} / ${totalPages} 페이지</span>`;
-
   el.innerHTML = h;
 }
-
 function gotoPage(n) {
   currentPage = n;
   renderCaseList();
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
-
 // ── 사건 삭제 ─────────────────────────────────────────────
 async function confirmDeleteCase(id) {
   if (!confirm('데이터가 삭제 됩니다. 계속 하시겠습니까?')) return;
-
   try {
     // 하위 데이터부터 정리 (FK CASCADE 설정이 없어도 안전하게 동작)
     const { data: docs } = await db.from('case_documents').select('file_path').eq('case_id', id);
@@ -614,13 +542,10 @@ async function confirmDeleteCase(id) {
     await db.from('case_events').delete().eq('case_id', id);
     await db.from('case_numbers').delete().eq('case_id', id);
     await db.from('case_outcomes').delete().eq('case_id', id);
-
     const { error } = await db.from('cases').delete().eq('id', id);
     if (error) throw error;
-
     if (editingCaseId === id) resetForm();          // 수정 중이던 사건이면 폼 초기화
     if (detailCaseId === id) switchTab('list');     // 상세 화면에 있었다면 목록으로
-
     showToast('✅ 사건 데이터가 삭제되었습니다.');
     await loadCases();                              // 목록 갱신 (페이지 초과 시 자동 보정)
     if (document.getElementById('search-tbody').children.length) runIntegratedSearch();
@@ -628,10 +553,8 @@ async function confirmDeleteCase(id) {
     showToast('삭제 실패: ' + err.message);
   }
 }
-
 // 파일 불러오기 및 AI 순차 추출
-let selectedFiles = [], eventItems = [], selectedOutcome = '진행 중', caseNums = [{ court: '2026서울조정', numHan: '', numKbs: '' }];
-
+let selectedFiles = [], eventItems = [], selectedOutcome = '진행 중', caseNums = [{ year: '2026', region: '서울조정', numHan: '', numKbs: '' }];
 // 피신청인 값 정규화 (select 3종에 맞춤)
 function normalizeRespondent(v) {
   if (!v) return '';
@@ -643,7 +566,6 @@ function normalizeRespondent(v) {
   if (hasKbs) return '케이비에스미디어';
   return '';
 }
-
 // 드래그 앤 드롭
 function onDragOver(e) { e.preventDefault(); document.getElementById('drop-zone').classList.add('drag'); }
 function onDragLeave(e) { e.preventDefault(); document.getElementById('drop-zone').classList.remove('drag'); }
@@ -656,25 +578,19 @@ function onDrop(e) {
   if (allowed.length < dropped.length) showToast('PDF/DOCX가 아닌 파일은 제외되었습니다.');
   handleFileSelect(allowed);
 }
-
 async function handleFileSelect(files) {
   if (!files || files.length === 0) return;
-
   const overlay = document.getElementById('ai-loading');
   const statusText = document.getElementById('ai-status-text');
   overlay.style.display = 'flex';
-
   const failed = [];
   let idx = 1;
   for (const file of Array.from(files)) {
     if (!selectedFiles.find(x => x.name === file.name)) selectedFiles.push(file);
-
     statusText.textContent = `[${idx}/${files.length}] Gemini AI가 '${file.name}' 문서를 검토 합니다.`;
-
     try {
       const formData = new FormData();
       formData.append('file', file);
-
       const { data: res, error: funcErr } = await db.functions.invoke('smooth-api', { body: formData });
       if (funcErr) {
         let detail = funcErr.message || 'Edge Function 오류';
@@ -689,7 +605,6 @@ async function handleFileSelect(files) {
       }
       if (res && res.error) throw new Error(res.error);
       if (!res) throw new Error('분석 결과가 비어 있습니다.');
-
       // Step 2: 사건 기본 매핑
       if (res.broadcast_date) document.getElementById('f-broadcast-date').value = res.broadcast_date;
       if (res.application_date) document.getElementById('f-application-date').value = res.application_date;
@@ -705,13 +620,11 @@ async function handleFileSelect(files) {
       if (res.reporter_org) document.getElementById('f-reporter-org').value = res.reporter_org;
       if (res.kbs_attorney) document.getElementById('f-attorney').value = res.kbs_attorney;
       if (res.arbitration_org) document.getElementById('f-arb-org').value = res.arbitration_org;
-
       if (res.claim_type && Array.isArray(res.claim_type)) {
         document.querySelectorAll('input[name="claim-type-cb"]').forEach(cb => {
           if (res.claim_type.includes(cb.value)) cb.checked = true;
         });
       }
-
       // Step 3: 진행 과정 매핑
       if (res.events && Array.isArray(res.events)) {
         res.events.forEach(ev => {
@@ -719,7 +632,6 @@ async function handleFileSelect(files) {
         });
         renderEventList();
       }
-
       // Step 4: 종결 유형 매핑
       if (res.status) {
         selectedOutcome = res.status;
@@ -739,10 +651,8 @@ async function handleFileSelect(files) {
     }
     idx++;
   }
-
   renderFileList(failed);
   overlay.style.display = 'none';
-
   if (failed.length === 0) {
     showToast('✨ 분석이 완료되었습니다. 2단계부터 사람이 직접 눈으로 확인 후 확정해 주세요.');
   } else if (failed.length < files.length) {
@@ -750,10 +660,8 @@ async function handleFileSelect(files) {
   } else {
     showToast('❌ 모든 파일 분석에 실패했습니다. 파일 형식/용량, 서버 설정, 이전 단계로 돌아가서 메시지를 확인해 주세요,.');
   }
-
   goStep(2);
 }
-
 function renderFileList(failed) {
   const failMap = {};
   (failed || []).forEach(f => { failMap[f.name] = f.msg || '분석 실패'; });
@@ -762,13 +670,11 @@ function renderFileList(failed) {
     return `<div class="file-item${err ? ' err' : ''}">${err ? '⚠️' : '📄'} <span title="${err ? esc(err) : ''}">${esc(f.name)}${err ? ' — ' + esc(err) : ''}</span> <button class="icon-btn" onclick="selectedFiles.splice(${i},1);renderFileList();">✕</button></div>`;
   }).join('');
 }
-
 // 상세 검색 컴포넌트
 async function runIntegratedSearch() {
   const query = document.getElementById('s-query').value.toLowerCase();
   const status = document.getElementById('s-status').value;
   const tbody = document.getElementById('search-tbody');
-
   let result = cases.filter(c =>
     (c.applicant_name || '').toLowerCase().includes(query) ||
     (c.content_title || '').toLowerCase().includes(query) ||
@@ -776,7 +682,6 @@ async function runIntegratedSearch() {
     (c.kbs_attorney || '').toLowerCase().includes(query)
   );
   if (status) result = result.filter(c => c.status === status);
-
   if (result.length === 0) {
     tbody.innerHTML = '<tr><td colspan="8" class="empty-state">조건에 일치하는 기록이 없습니다.</td></tr>';
     return;
@@ -799,7 +704,6 @@ async function runIntegratedSearch() {
     </tr>`;
   }).join('');
 }
-
 // 상세 조회 및 뷰어
 let detailDocs = [];
 async function showDetail(id) {
@@ -815,7 +719,6 @@ async function showDetail(id) {
   const status = c.status || '진행 중';
   detailDocs = docs || [];
   const evs = events || [];
-
   let html = `
     <div class="detail-section">
       <div class="detail-section-header">
@@ -833,7 +736,6 @@ async function showDetail(id) {
       <div class="detail-row"><span class="detail-label">KBS 담당자</span><span class="detail-val">${esc(c.kbs_attorney) || '-'}</span></div>
       <div class="detail-row"><span class="detail-label">진행 상황</span><span class="badge badge-${statusKey(status)}">${esc(status)}</span></div>
     </div>`;
-
   // ── 사건 진행 타임라인 (상세 내역 바로 아래) ──────────────
   const timelineEvents = [...evs].sort((a, b) => String(a.event_date || '').localeCompare(String(b.event_date || '')));
   html += `
@@ -861,7 +763,6 @@ async function showDetail(id) {
     html += `<div class="timeline-empty">등록된 진행 과정이 없습니다.</div>`;
   }
   html += `</div>`;
-
   if (out && out.outcome_type === '조정성립') {
     const pen = parseInt(out.penalty_per_day);
     const penTxt = isNaN(pen) ? '-' : `일당 ${pen.toLocaleString()}원 환산`;
@@ -873,20 +774,17 @@ async function showDetail(id) {
       <div class="detail-row"><span class="detail-label">합의 내용 요약</span><span class="detail-val" style="white-space:pre-wrap;">${esc(out.agreement_content) || '-'}</span></div>
     </div>`;
   }
-
   // 후속조치 (조정 합의 내용 바로 아래) — 권한별 입력 UI
   detailCaseId = id;
   detailOutcome = out || null;
   detailFollowEvents = evs.filter(e => e.event_type === '후속조치')
     .sort((a, b) => String(a.event_date || '').localeCompare(String(b.event_date || '')));
   editingFollowId = null;
-
   html += `
     <div class="detail-section" style="border-left:4px solid #534AB7;">
       <h3>후속조치</h3>
       <div id="followup-body"></div>
     </div>`;
-
   html += `
     <div class="detail-section">
       <h3>첨부 서류</h3>
@@ -895,22 +793,18 @@ async function showDetail(id) {
     html += detailDocs.map((d, i) => `<div class="file-item">🔒 <span>${esc(d.file_name)}</span> <button class="btn btn-sm btn-primary" onclick="openDocByIndex(${i})">문서 보기</button></div>`).join('');
   } else { html += '<p style="color:#ccc;">첨부문서 없음</p>'; }
   html += `</div></div>`;
-
   document.getElementById('detail-content').innerHTML = html;
   renderFollowupBody();
   switchTab('detail');
 }
-
 // ── 후속조치 섹션 (master: 전체 / reader: 추가 + 본인글 수정) ──
 let detailCaseId = null, detailOutcome = null, detailFollowEvents = [], editingFollowId = null;
 const FU_STATUSES = ['해당없음', '진행 예정', '진행 중', '이행 완료', '미이행'];
-
 function renderFollowupBody() {
   const box = document.getElementById('followup-body');
   if (!box) return;
   const writable = true;
   const cur = (detailOutcome && detailOutcome.follow_up_status) || '해당없음';
-
   // 1) 상태
   let h = `<div class="detail-row"><span class="detail-label">후속조치 상태</span><span class="detail-val">`;
   if (writable && detailOutcome) {
@@ -922,7 +816,6 @@ function renderFollowupBody() {
     h += esc(cur) + (detailOutcome ? '' : ' <span style="color:#bbb;font-weight:400;">(조정 결과 레코드 없음)</span>');
   }
   h += `</span></div>`;
-
   // 2) 내역 목록
   if (detailFollowEvents.length) {
     h += detailFollowEvents.map(e => {
@@ -949,7 +842,6 @@ function renderFollowupBody() {
   } else {
     h += `<div class="detail-row"><span class="detail-label">등록 내역</span><span class="detail-val" style="color:#bbb; font-weight:400;">등록된 후속조치 내역이 없습니다.</span></div>`;
   }
-
   // 3) 신규 등록 폼
   if (writable) {
     h += `
@@ -962,10 +854,8 @@ function renderFollowupBody() {
       </div>
     </div>`;
   }
-
   box.innerHTML = h;
 }
-
 async function saveFollowStatus() {
   const status = document.getElementById('fu-status').value;
   const { error } = await db.rpc('set_follow_up_status', { p_case_id: detailCaseId, p_status: status });
@@ -973,25 +863,20 @@ async function saveFollowStatus() {
   showToast('✅ 후속조치 상태가 저장되었습니다.');
   await showDetail(detailCaseId);
 }
-
 async function addFollowUp() {
   const d = document.getElementById('fu-new-date').value;
   const desc = document.getElementById('fu-new-desc').value.trim();
   if (!d || !desc) { showToast('일자와 내용을 모두 입력해 주세요.'); return; }
-
   const payload = { case_id: detailCaseId, event_type: '후속조치', event_date: d, description: desc, status: '완료' };
-
   const { error } = await db.from('case_events').insert(payload);
   if (error) { showToast('등록 실패: ' + error.message); return; }
   showToast('✅ 후속조치가 등록되었습니다.');
   await showDetail(detailCaseId);
 }
-
 async function saveFollowEdit(eventId) {
   const d = document.getElementById('fu-edit-date').value;
   const desc = document.getElementById('fu-edit-desc').value.trim();
   if (!d || !desc) { showToast('일자와 내용을 모두 입력해 주세요.'); return; }
-
   const { error } = await db.from('case_events')
     .update({ event_date: d, description: desc })
     .eq('id', eventId);
@@ -1000,17 +885,22 @@ async function saveFollowEdit(eventId) {
   showToast('✅ 후속조치가 수정되었습니다.');
   await showDetail(detailCaseId);
 }
-
 async function deleteFollowUp(eventId) {
   const { error } = await db.from('case_events').delete().eq('id', eventId);
   if (error) { showToast('삭제 실패: ' + error.message); return; }
   await showDetail(detailCaseId);
 }
-
 // ── 사건 수정 모드 ─────────────────────────────────────────
 let editingCaseId = null;
 let deletedEventIds = [];
-
+// 사건번호 문자열(예: "2026서울조정")을 연도/중재부로 분해
+const REGION_OPTS = ['서울조정', '부산조정', '대구조정', '광주조정', '대전조정', '경기조정', '강원조정', '충북조정', '전북조정', '경남조정', '제주조정'];
+function parseCourt(courtStr) {
+  const s = String(courtStr || '');
+  const region = REGION_OPTS.find(r => s.endsWith(r)) || '서울조정';
+  const year = s.slice(0, s.length - region.length) || '2026';
+  return { year, region };
+}
 async function startEditCase(id) {
   const [{ data: c, error: cErr }, { data: evs }, { data: nums }, { data: outs }] = await Promise.all([
     db.from('cases').select('*').eq('id', id).single(),
@@ -1019,11 +909,9 @@ async function startEditCase(id) {
     db.from('case_outcomes').select('*').eq('case_id', id)
   ]);
   if (cErr || !c) { showToast('사건 정보를 불러오지 못했습니다.'); return; }
-
   resetForm();               // 폼 초기화 (editingCaseId 도 null 로 세팅됨)
   editingCaseId = id;        // 그 다음 편집 모드 설정
   deletedEventIds = [];
-
   // 2단계: 기본 정보
   const set = (elId, v) => { const el = document.getElementById(elId); if (el) el.value = v || ''; };
   set('f-broadcast-date', c.broadcast_date);
@@ -1037,35 +925,33 @@ async function startEditCase(id) {
   set('f-attorney', c.kbs_attorney);
   set('f-arb-org', c.arbitration_org);
   document.getElementById('f-respondent').value = normalizeRespondent(c.respondent_name) || '케이비에스미디어';
-
   const claims = Array.isArray(c.claim_type) ? c.claim_type : [];
   document.querySelectorAll('input[name="claim-type-cb"]').forEach(cb => { cb.checked = claims.includes(cb.value); });
-
-  // 사건번호: court 기준으로 한국방송공사 / 케이비에스미디어 쌍으로 병합
+  // 사건번호: court 기준으로 한국방송공사 / 케이비에스미디어 쌍으로 병합 (court 문자열은 연도+중재부로 재분해)
   const byCourt = {};
   (nums || []).forEach(n => {
-    if (!byCourt[n.court]) byCourt[n.court] = { court: n.court, numHan: '', numKbs: '' };
+    if (!byCourt[n.court]) {
+      const { year, region } = parseCourt(n.court);
+      byCourt[n.court] = { year, region, numHan: '', numKbs: '' };
+    }
     if (n.respondent_target === '한국방송공사') byCourt[n.court].numHan = n.case_number || '';
     else byCourt[n.court].numKbs = n.case_number || '';
   });
   caseNums = Object.values(byCourt);
-  if (!caseNums.length) caseNums = [{ court: '2026서울조정', numHan: '', numKbs: '' }];
+  if (!caseNums.length) caseNums = [{ year: '2026', region: '서울조정', numHan: '', numKbs: '' }];
   renderCaseNums();
-
   // 3단계: 진행 과정 (id 를 보존해야 후속조치 작성자 정보가 유지됨)
   eventItems = (evs || []).map(e => ({
     id: e.id, event_type: e.event_type, event_date: e.event_date,
     description: e.description, status: e.status || '완료'
   }));
   renderEventList();
-
   // 4단계: 결과
   selectedOutcome = c.status || '진행 중';
   document.querySelectorAll('#sc4 .outcome-card').forEach(x => x.classList.remove('selected'));
   const map = { '진행 중': 'card-ing', '조정성립': 'card-ok', '조정불성립': 'card-no', '취하': 'card-cn' };
   if (map[selectedOutcome]) document.getElementById(map[selectedOutcome]).classList.add('selected');
   document.getElementById('outcome-detail-panel').style.display = (selectedOutcome === '조정성립') ? 'block' : 'none';
-
   const out = outs && outs[0];
   if (out) {
     set('oc-date', out.outcome_date);
@@ -1074,12 +960,10 @@ async function startEditCase(id) {
     set('oc-penalty', out.penalty_per_day);
     document.getElementById('oc-followup').value = out.follow_up_status || '해당없음';
   }
-
   applyEditBanner(c.applicant_name);
   changeMenu('form');
   goStep(2);
 }
-
 function applyEditBanner(name) {
   const b = document.getElementById('edit-banner');
   if (editingCaseId) {
@@ -1092,18 +976,15 @@ function applyEditBanner(name) {
     ? (editingCaseId ? '💾 수정 내용 저장' : '💾 내용 저장')
     : '다음 단계 →';
 }
-
 function cancelEditCase() {
   resetForm();
   showToast('신규 입력 모드로 전환되었습니다.');
 }
-
 async function openDocByIndex(i) {
   const d = detailDocs[i];
   if (!d) return;
   await openPdfInbound(d.file_path, d.file_name);
 }
-
 async function openPdfInbound(path, name) {
   const { data, error } = await db.storage.from('case_documents').createSignedUrl(path, 1800);
   if (!error) {
@@ -1118,7 +999,6 @@ function closeMainPdf() {
   document.getElementById('pdf-modal').classList.remove('open');
   document.getElementById('main-pdf-iframe').src = '';
 }
-
 // 스테퍼 내비게이션
 let curStep = 1;
 function goStep(n) {
@@ -1128,33 +1008,27 @@ function goStep(n) {
   document.getElementById('sc' + curStep).classList.add('active');
   document.getElementById('snav' + curStep).classList.add('active');
   document.getElementById('step-ind').textContent = `${curStep} / 5`;
-
   document.getElementById('btn-prev').style.visibility = curStep === 1 ? 'hidden' : 'visible';
   document.getElementById('btn-next').style.display = curStep === 1 ? 'none' : 'inline-block';
   document.getElementById('btn-next').textContent = curStep === 5
     ? (editingCaseId ? '💾 수정 내용 저장' : '💾 내용 저장')
     : '다음 단계 →';
-
   if (curStep === 5) renderConfirm();
 }
 function nextStep() { if (curStep < 5) goStep(curStep + 1); else saveMasterTransaction(); }
 function prevStep() { if (curStep > 1) goStep(curStep - 1); }
-
 function selectOutcome(type, el) {
   document.querySelectorAll('#sc4 .outcome-card').forEach(c => c.classList.remove('selected'));
   el.classList.add('selected'); selectedOutcome = type;
   document.getElementById('outcome-detail-panel').style.display = (type === '조정성립') ? 'block' : 'none';
 }
-
 // ── 진행 과정: 추가 / 수정 / 삭제 ─────────────────────────
 let editingEventIdx = null;
-
 function openEventForm() {
   const panel = document.getElementById('event-form-panel');
   if (panel.style.display === 'none') panel.style.display = 'block';
   else if (editingEventIdx === null) panel.style.display = 'none';
 }
-
 function startEditEvent(i) {
   const e = eventItems[i];
   if (!e) return;
@@ -1170,7 +1044,6 @@ function startEditEvent(i) {
   panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
   renderEventList();
 }
-
 function cancelEventEdit() {
   editingEventIdx = null;
   document.getElementById('ev-date').value = '';
@@ -1180,7 +1053,6 @@ function cancelEventEdit() {
   document.getElementById('ev-cancel-btn').style.display = 'none';
   renderEventList();
 }
-
 function submitEventItem() {
   const payload = {
     event_type: document.getElementById('ev-type').value,
@@ -1189,7 +1061,6 @@ function submitEventItem() {
     status: '완료'
   };
   if (!payload.event_date) { showToast('일자를 입력해 주세요.'); return; }
-
   if (editingEventIdx !== null && eventItems[editingEventIdx]) {
     eventItems[editingEventIdx] = { ...eventItems[editingEventIdx], ...payload };
     showToast('진행 과정이 수정되었습니다.');
@@ -1200,7 +1071,6 @@ function submitEventItem() {
     renderEventList();
   }
 }
-
 function deleteEventItem(i) {
   const target = eventItems[i];
   if (target && target.id) deletedEventIds.push(target.id);
@@ -1209,7 +1079,6 @@ function deleteEventItem(i) {
   eventItems.splice(i, 1);
   renderEventList();
 }
-
 function renderTimeline() {
   const el = document.getElementById('timeline-ui');
   if (!el) return;
@@ -1223,7 +1092,6 @@ function renderTimeline() {
     </div>`).join('');
   el.innerHTML = `<div class="timeline-track"><div class="timeline-line"></div>${nodes}</div>`;
 }
-
 function renderEventList() {
   const list = document.getElementById('event-list-ui');
   const withIdx = eventItems.map((e, i) => ({ e, i }));
@@ -1240,14 +1108,17 @@ function renderEventList() {
     </div>`).join('');
   renderTimeline();
 }
-
-function addCaseNumRow() { caseNums.push({ court: '2026서울조정', numHan: '', numKbs: '' }); renderCaseNums(); }
+function addCaseNumRow() { caseNums.push({ year: '2026', region: '서울조정', numHan: '', numKbs: '' }); renderCaseNums(); }
 function renderCaseNums() {
-  const courtOpts = ['2026서울조정', '2026부산조정', '2026대구조정', '2026광주조정', '2026대전조정', '2026경기조정', '2026강원조정', '2026충북조정', '2026전북조정', '2026경남조정', '2026제주조정', '2025서울조정', '2025부산조정', '2025대구조정', '2025광주조정', '2025대전조정', '2025경기조정', '2025강원조정', '2025충북조정', '2025전북조정', '2025경남조정', '2025제주조정'];
+  const yearOpts = ['2026', '2025', '2024', '2023', '2022', '2021', '2020', '2019', '2018', '2017', '2016'];
+  const regionOpts = REGION_OPTS;
   document.getElementById('case-num-rows').innerHTML = caseNums.map((cn, i) => `
     <div class="case-num-row">
-      <div class="field" style="flex:1.3"><label>중재부/사건연도</label>
-        <select onchange="caseNums[${i}].court=this.value">${courtOpts.map(v => `<option${cn.court === v ? ' selected' : ''}>${v}</option>`).join('')}</select>
+      <div class="field" style="flex:0.7"><label>연도</label>
+        <select onchange="caseNums[${i}].year=this.value">${yearOpts.map(v => `<option${cn.year === v ? ' selected' : ''}>${v}</option>`).join('')}</select>
+      </div>
+      <div class="field" style="flex:0.9"><label>중재부</label>
+        <select onchange="caseNums[${i}].region=this.value">${regionOpts.map(v => `<option${cn.region === v ? ' selected' : ''}>${v}</option>`).join('')}</select>
       </div>
       <div class="field" style="flex:1.2"><label>한국방송공사 사건번호</label>
         <input type="text" placeholder="예: 제2026-000호" value="${esc(cn.numHan)}" oninput="caseNums[${i}].numHan=this.value">
@@ -1258,7 +1129,6 @@ function renderCaseNums() {
       <button class="icon-btn" onclick="caseNums.splice(${i},1); renderCaseNums();">✕</button>
     </div>`).join('');
 }
-
 function renderConfirm() {
   const cTypes = Array.from(document.querySelectorAll('input[name="claim-type-cb"]:checked')).map(cb => cb.value);
   const rows = [
@@ -1272,26 +1142,22 @@ function renderConfirm() {
   ];
   document.getElementById('confirm-table').innerHTML = rows.map(([k, v]) => `<tr><td>${esc(k)}</td><td><strong>${esc(v) || '-'}</strong></td></tr>`).join('');
 }
-
 function safeName(originalName) {
   const dotIdx = originalName.lastIndexOf('.');
   const ext = dotIdx !== -1 ? originalName.slice(dotIdx) : '';
   const base = dotIdx !== -1 ? originalName.slice(0, dotIdx) : originalName;
   return (base.replace(/[^a-zA-Z0-9_-]/g, '_') || 'secure_doc') + ext;
 }
-
 // 최종 저장 트랜잭션 마스터
 async function saveMasterTransaction() {
   const applicant = document.getElementById('f-applicant').value.trim();
   const broadcastDate = document.getElementById('f-broadcast-date').value;
   const cTypes = Array.from(document.querySelectorAll('input[name="claim-type-cb"]:checked')).map(cb => cb.value);
-
   if (!applicant || !broadcastDate || cTypes.length === 0) {
     showToast('필수 인자값이 누락되었습니다. (2단계: 신청인 / 발송일 / 청구유형)');
     goStep(2);
     return;
   }
-
   if (selectedOutcome === '조정성립') {
     const ocDate = document.getElementById('oc-date').value;
     const ocDeadline = document.getElementById('oc-deadline').value;
@@ -1303,13 +1169,11 @@ async function saveMasterTransaction() {
       return;
     }
   }
-
   const btn = document.getElementById('btn-next');
   const originalText = btn.textContent;
   btn.disabled = true;
   document.getElementById('btn-prev').disabled = true;
   btn.innerHTML = '<span class="spinner"></span> 저장 중...';
-
   const casePayload = {
     broadcast_date: broadcastDate,
     application_date: document.getElementById('f-application-date').value || null,
@@ -1325,7 +1189,6 @@ async function saveMasterTransaction() {
     kbs_attorney: document.getElementById('f-attorney').value,
     status: selectedOutcome
   };
-
   const outcomeFields = {
     outcome_type: selectedOutcome,
     outcome_date: document.getElementById('oc-date').value || null,
@@ -1334,25 +1197,22 @@ async function saveMasterTransaction() {
     penalty_per_day: parseInt(document.getElementById('oc-penalty').value) || null,
     follow_up_status: document.getElementById('oc-followup').value || '해당없음'
   };
-
   const buildNums = (cid) => {
     const arr = [];
     caseNums.forEach(cn => {
-      if (cn.numHan && cn.numHan.trim()) arr.push({ case_id: cid, court: cn.court, case_number: cn.numHan.trim(), respondent_target: '한국방송공사' });
-      if (cn.numKbs && cn.numKbs.trim()) arr.push({ case_id: cid, court: cn.court, case_number: cn.numKbs.trim(), respondent_target: '케이비에스미디어' });
+      const court = `${cn.year || ''}${cn.region || ''}`;
+      if (cn.numHan && cn.numHan.trim()) arr.push({ case_id: cid, court, case_number: cn.numHan.trim(), respondent_target: '한국방송공사' });
+      if (cn.numKbs && cn.numKbs.trim()) arr.push({ case_id: cid, court, case_number: cn.numKbs.trim(), respondent_target: '케이비에스미디어' });
     });
     return arr;
   };
-
   try {
     let cid;
-
     if (editingCaseId) {
       // ── 기존 사건 수정 ──────────────────────────────────
       cid = editingCaseId;
       const { error: uErr } = await db.from('cases').update(casePayload).eq('id', cid);
       if (uErr) throw uErr;
-
       // 진행 과정: 기존 행은 UPDATE, 신규는 INSERT, 삭제분은 DELETE
       for (const e of eventItems) {
         const row = { event_type: e.event_type, event_date: e.event_date, description: e.description, status: e.status || '완료' };
@@ -1368,7 +1228,6 @@ async function saveMasterTransaction() {
         const { error } = await db.from('case_events').delete().in('id', deletedEventIds);
         if (error) throw error;
       }
-
       // 사건번호: 전량 교체
       await db.from('case_numbers').delete().eq('case_id', cid);
       const nums = buildNums(cid);
@@ -1376,7 +1235,6 @@ async function saveMasterTransaction() {
         const { error } = await db.from('case_numbers').insert(nums);
         if (error) throw error;
       }
-
       // 결과: 있으면 UPDATE, 없으면 INSERT
       const { data: exist } = await db.from('case_outcomes').select('id').eq('case_id', cid).maybeSingle();
       if (exist) {
@@ -1386,42 +1244,35 @@ async function saveMasterTransaction() {
         const { error } = await db.from('case_outcomes').insert({ case_id: cid, ...outcomeFields });
         if (error) throw error;
       }
-
     } else {
       // ── 신규 사건 생성 ──────────────────────────────────
       const { data: cData, error: cErr } = await db.from('cases').insert(casePayload).select().single();
       if (cErr) throw cErr;
       cid = cData.id;
-
       if (eventItems.length > 0) {
         const rows = eventItems.map(e => ({ case_id: cid, event_type: e.event_type, event_date: e.event_date, description: e.description, status: e.status || '완료' }));
         const { error } = await db.from('case_events').insert(rows);
         if (error) throw error;
       }
-
       const nums = buildNums(cid);
       if (nums.length) {
         const { error } = await db.from('case_numbers').insert(nums);
         if (error) throw error;
       }
-
       const { error: oErr } = await db.from('case_outcomes').insert({ case_id: cid, ...outcomeFields });
       if (oErr) throw oErr;
     }
-
     // 신규로 첨부한 파일만 업로드 (기존 첨부는 유지)
     for (const file of selectedFiles) {
       const storagePath = `${cid}/${Date.now()}_${safeName(file.name)}`;
       const { error: upErr } = await db.storage.from('case_documents').upload(storagePath, file);
       if (!upErr) await db.from('case_documents').insert({ case_id: cid, file_name: file.name, file_path: storagePath, file_size: file.size });
     }
-
     showToast(editingCaseId ? '✅ 사건 수정 내용이 저장되었습니다.' : '✅ 모든 사건 데이터와 파일이 안전하게 동기화되었습니다.');
     const savedId = cid;
     await loadCases();
     resetForm();
     await showDetail(savedId);
-
   } catch (err) {
     showToast('저장 트랜잭션 오류: ' + err.message);
   } finally {
@@ -1430,7 +1281,6 @@ async function saveMasterTransaction() {
     btn.textContent = originalText;
   }
 }
-
 function resetForm() {
   curStep = 1;
   selectedFiles = [];
@@ -1438,28 +1288,23 @@ function resetForm() {
   editingEventIdx = null;
   editingCaseId = null;
   deletedEventIds = [];
-  caseNums = [{ court: '2026서울조정', numHan: '', numKbs: '' }];
+  caseNums = [{ year: '2026', region: '서울조정', numHan: '', numKbs: '' }];
   selectedOutcome = '진행 중';
-
   ['f-broadcast-date', 'f-application-date', 'f-applicant', 'f-program', 'f-title', 'f-reporter', 'f-reporter-org', 'f-attorney', 'f-content-date', 'oc-date', 'oc-deadline', 'oc-content', 'oc-penalty', 'ev-date', 'ev-desc'].forEach(id => {
     const el = document.getElementById(id); if (el) el.value = '';
   });
   document.getElementById('f-arb-org').value = '';
   document.getElementById('f-respondent').value = '케이비에스미디어';
   document.getElementById('oc-followup').value = '해당없음';
-
   document.querySelectorAll('input[name="claim-type-cb"]').forEach(cb => cb.checked = false);
-
   document.querySelectorAll('#sc4 .outcome-card').forEach(c => c.classList.remove('selected'));
   document.getElementById('outcome-detail-panel').style.display = 'none';
   document.getElementById('event-form-panel').style.display = 'none';
   document.getElementById('event-form-title').textContent = '새 진행 과정 추가';
   document.getElementById('ev-submit-btn').textContent = '리스트에 추가';
   document.getElementById('ev-cancel-btn').style.display = 'none';
-
   document.getElementById('confirm-table').innerHTML = '';
   document.getElementById('detail-content').innerHTML = '';
-
   renderFileList();
   renderCaseNums();
   renderEventList();
