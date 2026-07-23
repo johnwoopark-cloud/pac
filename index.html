@@ -669,7 +669,7 @@ async function handleFileSelect(files) {
   for (const file of Array.from(files)) {
     if (!selectedFiles.find(x => x.name === file.name)) selectedFiles.push(file);
 
-    statusText.textContent = `[${idx}/${files.length}] Gemini AI가 '${file.name}' 문서를 정밀 분석하고 있습니다...`;
+    statusText.textContent = `[${idx}/${files.length}] Gemini AI가 '${file.name}' 문서를 검토 합니다.`;
 
     try {
       const formData = new FormData();
@@ -748,7 +748,7 @@ async function handleFileSelect(files) {
   } else if (failed.length < files.length) {
     showToast(`⚠️ 일부 파일 분석 실패 (${failed.length}건). 실패 파일은 목록에서 붉게 표시됩니다.`);
   } else {
-    showToast('❌ 모든 파일 분석에 실패했습니다. 파일 형식/용량 또는 서버 설정을 확인해 주세요.');
+    showToast('❌ 모든 파일 분석에 실패했습니다. 파일 형식/용량, 서버 설정, 이전 단계로 돌아가서 메시지를 확인해 주세요,.');
   }
 
   goStep(2);
@@ -1089,7 +1089,7 @@ function applyEditBanner(name) {
     b.style.display = 'none';
   }
   document.getElementById('btn-next').textContent = curStep === 5
-    ? (editingCaseId ? '💾 수정 내용 저장' : '💾 보안 시스템 저장')
+    ? (editingCaseId ? '💾 수정 내용 저장' : '💾 내용 저장')
     : '다음 단계 →';
 }
 
@@ -1132,7 +1132,7 @@ function goStep(n) {
   document.getElementById('btn-prev').style.visibility = curStep === 1 ? 'hidden' : 'visible';
   document.getElementById('btn-next').style.display = curStep === 1 ? 'none' : 'inline-block';
   document.getElementById('btn-next').textContent = curStep === 5
-    ? (editingCaseId ? '💾 수정 내용 저장' : '💾 보안 시스템 저장')
+    ? (editingCaseId ? '💾 수정 내용 저장' : '💾 내용 저장')
     : '다음 단계 →';
 
   if (curStep === 5) renderConfirm();
